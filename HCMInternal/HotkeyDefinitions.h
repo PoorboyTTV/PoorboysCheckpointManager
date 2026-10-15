@@ -79,8 +79,8 @@ private:
 
 
 	// have to split up the counting here since BOOST_PP_TUPLE_SIZE can only count up to 64
-	static constexpr inline int allEventOnPressHotkeyEnumCount = BOOST_PP_TUPLE_SIZE((ALL_EVENTONPRESS_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((SKULL_HOTKEYS));
-	static constexpr inline int allRebindableHotkeyEnumCount = BOOST_PP_TUPLE_SIZE((ALL_EVENTONPRESS_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((NOEVENT_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((SKULL_HOTKEYS));
+	static constexpr inline int allEventOnPressHotkeyEnumCount = BOOST_PP_TUPLE_SIZE((ALL_EVENTONPRESS_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((SKULL_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((H2P_HOTKEYS));
+	static constexpr inline int allRebindableHotkeyEnumCount = BOOST_PP_TUPLE_SIZE((ALL_EVENTONPRESS_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((NOEVENT_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((SKULL_HOTKEYS)) + BOOST_PP_TUPLE_SIZE((H2P_HOTKEYS));
 	static constexpr inline int rebindableOnlyCount = allRebindableHotkeyEnumCount - allEventOnPressHotkeyEnumCount;
 
 	const std::map<RebindableHotkeyEnum, std::shared_ptr<EventOnPressHotkey>>::value_type allEventOnPressHotkeysData[allEventOnPressHotkeyEnumCount]
@@ -485,6 +485,32 @@ private:
 
 		initEventOnPressHotkey(skullAcrophobiaHotkey,
 		mSettings->skullAcrophobiaToggleHotkeyEvent,
+		vsk{}),
+
+		/// Poorboys Checkpoint Manager: Halo 2 physics (F8 is HCM's console, F1-F5 its checkpoint and cheat keys)
+		initEventOnPressHotkey(h2pPhysicsHotkey,
+		mSettings->h2pPhysicsHotkeyEvent,
+		vsk{{ ImGuiKey_F6 }}),
+
+		initEventOnPressHotkey(h2pBarriersCycleHotkey,
+		mSettings->h2pBarriersCycleHotkeyEvent,
+		vsk{{ ImGuiKey_F7 }}),
+
+		initEventOnPressHotkey(h2pTick30Hotkey,
+		mSettings->h2pTick30HotkeyEvent,
+		vsk{{ ImGuiKey_F9 }}),
+
+		initEventOnPressHotkey(h2pCombosHotkey,
+		mSettings->h2pCombosHotkeyEvent,
+		vsk{{ ImGuiKey_F10 }}),
+
+		initEventOnPressHotkey(h2pNoFallDeathsHotkey,
+		mSettings->h2pNoFallDeathsHotkeyEvent,
+		vsk{{ ImGuiKey_F11 }}),
+
+		// unbound: everyone picks their own (a key, or a controller button / combination)
+		initEventOnPressHotkey(h2pArmHotkey,
+		mSettings->h2pArmEvent,
 		vsk{}),
 
 

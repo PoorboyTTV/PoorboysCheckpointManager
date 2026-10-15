@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "HCMInternalGUI.h"
+#include "PCMTheme.h"
 #include "GlobalKill.h"
 #include "GUISimpleButton.h"
 #include "MCCStateHook.h"
@@ -127,7 +128,7 @@ void HCMInternalGUI::renderErrorDialog()
 		ImGui::TextWrapped("HCM encountered an error!");
 		ImGui::TextWrapped(errorsToDisplay.front().what());
 		ImGui::TextWrapped("");
-		ImGui::TextWrapped("Nerdy info for Burnt: ");
+		ImGui::TextWrapped("Technical details: ");
 
 		ImGui::BeginChild("trace", ImVec2(ImGui::GetWindowSize().x - 15, 150), NULL);
 		ImGui::TextWrapped("The error occured here:");
@@ -186,6 +187,7 @@ void HCMInternalGUI::primaryRender()
 
 	totalContentHeight += 25; // some padding for.. actually I'm not sure why
 	totalContentHeight += GUIFrameHeightWithSpacing; // for header
+	totalContentHeight += (int)ImGui::GetTextLineHeightWithSpacing(); // for the credit line under the title
 
 
 	mWindowSize.y = (minimumWindowSize.y > totalContentHeight ? totalContentHeight : minimumWindowSize.y);
@@ -202,22 +204,21 @@ void HCMInternalGUI::primaryRender()
 		ImGui::SetNextWindowSize(mWindowSize);
 		ImGui::SetNextWindowPos(mWindowPos);
 
-		if (m_WindowOpen)
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00f, 0.80f, 0.40f, 1.00f));
-		else
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00f, 0.60f, 0.25f, 1.00f));
+		ImGui::PushStyleColor(ImGuiCol_Text, PCMTheme::titleColor(m_WindowOpen));
 
 
 
 		ImGuiWindowFlags blockInputsIfNoCursor = *mIsCursorShowing == true ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoInputs & ImGuiWindowFlags_NoMouseInputs;
 
 		ImGui::SetNextWindowCollapsed(!m_WindowOpen);
-		m_WindowOpen = ImGui::Begin(m_WindowOpen ? "Halo Checkpoint Manager###HCM" : "HCM###HCM", nullptr, windowFlags | blockInputsIfNoCursor); // Create window. Returns false when window collapsed
+		m_WindowOpen = ImGui::Begin(m_WindowOpen ? "Poorboys Checkpoint Manager###PCM" : "PCM###PCM", nullptr, windowFlags | blockInputsIfNoCursor); // Create window. Returns false when window collapsed
 
 		ImGui::PopStyleColor();
 
 		if (m_WindowOpen)  //only bother rendering children if it's not collapsed
 		{	
+			// Poorboys Checkpoint Manager is built on Halo Checkpoint Manager: its authors are credited right under the title
+			ImGui::TextDisabled("built on Halo Checkpoint Manager by Burnt-o and Harc");
 			mGUIMCCState.render(); // render header
 
 			// Tell all the current-games GUI elements to render themselves

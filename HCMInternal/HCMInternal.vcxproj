@@ -72,6 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)HCMExternal\bin\$(Platform)\$(Configuration)\net7.0-windows\</OutDir>
+    <!-- Poorboys Checkpoint Manager: own name inside MCC, so it never collides with Halo Checkpoint Manager's HCMInternal.dll -->
+    <TargetName>PCMInternal</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
@@ -80,6 +82,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)HCMExternal\bin\$(Platform)\$(Configuration)\net7.0-windows\</OutDir>
+    <!-- Poorboys Checkpoint Manager: own name inside MCC, so it never collides with Halo Checkpoint Manager's HCMInternal.dll -->
+    <TargetName>PCMInternal</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
@@ -153,7 +157,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;dxguid.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxguid.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;Iphlpapi.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -210,7 +214,7 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;dxguid.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxguid.lib;libcurl.lib;version.lib;Ws2_32.lib;Wldap32.Lib;Crypt32.Lib;Iphlpapi.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\lib</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -482,6 +486,10 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClInclude Include="MidhookFlagInterpreter.h" />
     <ClInclude Include="ModalDialogRenderer.h" />
     <ClInclude Include="NaturalCheckpointDisable.h" />
+    <ClInclude Include="Halo2Physics.h" />
+    <ClInclude Include="GUIH2Physics.h" />
+    <ClInclude Include="PCMTheme.h" />
+    <ClInclude Include="h3sb_api.h" />
     <ClInclude Include="NullSmoother.h" />
     <ClInclude Include="ObjectTypes.h" />
     <ClInclude Include="PauseGame.h" />
@@ -753,6 +761,8 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClCompile Include="MultilevelPointer.cpp" />
     <ClCompile Include="GetPlayerDatum.cpp" />
     <ClCompile Include="NaturalCheckpointDisable.cpp" />
+    <ClCompile Include="Halo2Physics.cpp" />
+    <ClCompile Include="PCMTheme.cpp" />
     <ClCompile Include="PauseGame.cpp" />
     <ClCompile Include="ProggyVectorRegularFont.cpp" />
     <ClCompile Include="BinarySetting.cpp" />

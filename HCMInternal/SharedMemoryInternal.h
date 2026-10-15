@@ -22,7 +22,7 @@ public:
 	{
 		try
 		{
-			segment = bip::managed_shared_memory(bip::open_only, "hcm_shm");
+			segment = bip::managed_shared_memory(bip::open_only, "pcm_shm");
 			auto* pdirPath = segment.find<shm_string>("HCMdirPath").first;
 			if (!pdirPath) throw HCMInitException("Could not access HCMDirPath");
 

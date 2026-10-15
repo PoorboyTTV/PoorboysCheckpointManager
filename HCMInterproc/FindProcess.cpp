@@ -55,7 +55,9 @@ std::optional<HandlePtr> findValidMCCProcess()
 // returns true if EasyAnticheat process is detected
 bool anticheatIsEnabled()
 {
-	// just enumurate processes and search for name EasyAntiCheat.exe
+	// just enumurate processes and search for EasyAntiCheat's process. MCC now ships the Epic Online Services build
+	// (service EasyAntiCheat_EOS, process EasyAntiCheat_EOS.exe): checking only the old name let a protected MCC through
+	// to a failed injection with a cryptic access-rights error (Poorboys Checkpoint Manager, 2026-10-15)
 
 	// Create toolhelp snapshot.
 	HandlePtr snapshot (CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
@@ -68,7 +70,7 @@ bool anticheatIsEnabled()
 	{
 		do
 		{
-			if (_wcsicmp(process.szExeFile, L"EasyAntiCheat.exe") == 0)
+			if (_wcsicmp(process.szExeFile, L"EasyAntiCheat.exe") == 0 || _wcsicmp(process.szExeFile, L"EasyAntiCheat_EOS.exe") == 0)
 			{
 				return true;
 			}

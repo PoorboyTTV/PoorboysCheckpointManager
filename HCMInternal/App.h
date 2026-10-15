@@ -104,9 +104,9 @@ public:
             if (auto suppV = PointerDataParser::parseSupportedMCCVersions(pointerXMLData); !suppV.has_value() || suppV.value().find(ver->getMCCVersionAsString().data()) == suppV.value().end())
             {
                 if (suppV.has_value())
-                    throw HCMInitException(std::format("The current version of MCC ({}) is not yet supported by HCM! ", ver->getMCCVersionAsString()) +
-                        "\nYou'll have to wait for Burnt to update it if HCM just got a patch," +
-                        "\nor if you're on an old MCC patch, kindly ask him to add support.");
+                    throw HCMInitException(std::format("The current version of MCC ({}) is not yet supported! ", ver->getMCCVersionAsString()) +
+                        "\nIf MCC just got a patch, Halo Checkpoint Manager (by Burnt-o, which this is built on) has to support it first," +
+                        "\nthen Poorboys Checkpoint Manager needs updating too.");
                 else
                     throw HCMInitException(std::format("Failed to parse currently supported MCC versions, error: {}", suppV.error()));
             }
@@ -203,7 +203,7 @@ public:
                 {
                     if (suppV.has_value())
                     {
-                        imes->addMessage("A newer version of HCM exists, probably with bugfixes or new features.\nFind it at github.com/Burnt-o/HaloCheckpointManager/releases\n");
+                        imes->addMessage("Halo Checkpoint Manager (by Burnt-o, which this is built on) has a newer version.\nPoorboys Checkpoint Manager may need updating to include its fixes.\n");
                         PLOG_DEBUG << "Supported versions:"; for (auto& v : suppV.value()) { PLOG_DEBUG << v; }
                     }
                     else
@@ -243,7 +243,7 @@ public:
 
             std::ostringstream oss;
             oss << "\n\nHCMInternal failed initializing: " << ex.what() << std::endl
-                << "Please send Burnt the log file located at: " << std::endl << logging->GetLogFileDestination();
+                << "This is Poorboys Checkpoint Manager (a modified Halo Checkpoint Manager): please send the log file to Poorboy, not to Burnt. It is at: " << std::endl << logging->GetLogFileDestination();
             PLOG_FATAL << oss.str();
 
             sharedMem->setStatusFlag(HCMInternalStatus::Error);

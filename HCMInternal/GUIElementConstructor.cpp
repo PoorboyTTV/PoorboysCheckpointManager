@@ -24,6 +24,7 @@
 #include "GUIColourPickerAlpha.h"
 #include "GUIInputInt.h"
 #include "GUIComboEnum.h"
+#include "GUIH2Physics.h"
 #include "GUIComboEnumWithChildren.h"
 #include "GUIDummyContainer.h"
 #include "GUIVec3.h"
@@ -122,10 +123,80 @@ private:
 			std::optional<std::shared_ptr<IGUIElement>> x;
 			switch (guielementenum)
 			{
+			// ---- Poorboys Checkpoint Manager: Halo 2 physics (Halo2Physics.cpp, GUIH2Physics.h) ----
+			case GUIElementEnum::halo2PhysicsHeadingGUI:
+				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
+					(game, ToolTipCollection("Halo 2's physics for Halo 3 and ODST, by Poorboy: Halo 2's player body, movement, jump and superbounces"), "Halo 2 Physics", headerChildElements
+						{
+						createNestedElement(GUIElementEnum::h2pStatusGUI),
+						createNestedElement(GUIElementEnum::h2pPhysicsToggleGUI),
+						createNestedElement(GUIElementEnum::h2pArmGUI),
+						createNestedElement(GUIElementEnum::h2pBarriersGUI),
+						createNestedElement(GUIElementEnum::h2pTick30ToggleGUI),
+						createNestedElement(GUIElementEnum::h2pCombosToggleGUI),
+						createNestedElement(GUIElementEnum::h2pNoFallDeathsToggleGUI),
+						createNestedElement(GUIElementEnum::h2pHelpersSubheading),
+						}));
+
+				case GUIElementEnum::h2pStatusGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIH2PhysicsStatus>
+						(game, ToolTipCollection("ARMED: a fall onto the right edge bounces. Speed is the Halo 2 body's; a step has to pass 5.45 to sweep")));
+
+				case GUIElementEnum::h2pPhysicsToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Halo 2's player physics, movement and jump. Off: the mod unloads and the game is untouched"), RebindableHotkeyEnum::h2pPhysicsHotkey, "Halo 2 physics", settings->h2pPhysicsToggle));
+
+				case GUIElementEnum::h2pArmGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>
+						(game, ToolTipCollection("Puts the Halo 2 body in the armed state now (what standing up inside geometry does), so you can go straight to a bounce spot. Like Halo 2, it is lost if you stand still long enough to fall asleep. Bind it to a key or a controller button with the .. button"), RebindableHotkeyEnum::h2pArmHotkey, "Arm now", settings->h2pArmEvent));
+
+				case GUIElementEnum::h2pBarriersGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIH2PhysicsBarriers>
+						(game, ToolTipCollection("Invisible barriers while Halo 2 physics is on. The hotkey steps through the four"), RebindableHotkeyEnum::h2pBarriersCycleHotkey, settings->h2pBarriers));
+
+				case GUIElementEnum::h2pTick30ToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("30 ticks a second, Halo 2's rate: every game tick is one Halo 2 step. Off: MCC's 60"), RebindableHotkeyEnum::h2pTick30Hotkey, "30 tick", settings->h2pTick30Toggle));
+
+				case GUIElementEnum::h2pCombosToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Halo 2's button combos: melee cancels (BXR, BXB, double shot) and melee lock"), RebindableHotkeyEnum::h2pCombosHotkey, "Halo 2 button combos", settings->h2pCombosToggle));
+
+				case GUIElementEnum::h2pNoFallDeathsToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Falls never kill or hurt you (campaign and Firefight). Other damage still counts"), RebindableHotkeyEnum::h2pNoFallDeathsHotkey, "No falling deaths", settings->h2pNoFallDeathsToggle));
+
+				case GUIElementEnum::h2pHelpersSubheading:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISubHeading<false>>
+						(game, ToolTipCollection("The map window (armed state, call-outs, nearby bounce spots) and the lines drawn in the world"), "Helper windows", headerChildElements
+							{
+							createNestedElement(GUIElementEnum::h2pCalloutsToggleGUI),
+							createNestedElement(GUIElementEnum::h2pOpenMapWindowGUI),
+							createNestedElement(GUIElementEnum::h2pOpenWorldLinesGUI),
+							createNestedElement(GUIElementEnum::h2pCloseHelpersGUI),
+							}));
+
+					case GUIElementEnum::h2pCalloutsToggleGUI:
+						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<false>>
+							(game, ToolTipCollection("The map window also speaks: armed, lost it, the stick recipe for the spot ahead"), std::nullopt, "Spoken call-outs", settings->h2pCalloutsToggle));
+
+					case GUIElementEnum::h2pOpenMapWindowGUI:
+						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
+							(game, ToolTipCollection("Opens the map window beside the game"), std::nullopt, "Open map window", settings->h2pOpenMapWindowEvent));
+
+					case GUIElementEnum::h2pOpenWorldLinesGUI:
+						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
+							(game, ToolTipCollection("Draws the bounce lines into the game view"), std::nullopt, "Show lines in the world", settings->h2pOpenWorldLinesEvent));
+
+					case GUIElementEnum::h2pCloseHelpersGUI:
+						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
+							(game, ToolTipCollection("Closes the map window and the world lines"), std::nullopt, "Close helper windows", settings->h2pCloseHelpersEvent));
+
 			case GUIElementEnum::controlHeadingGUI:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
 					(game, ToolTipCollection("General HCM options"), "Control", headerChildElements
 						{
+						createNestedElement(GUIElementEnum::pcmThemeGUI),
 						createNestedElement(GUIElementEnum::toggleGUIHotkeyGUI),
 						createNestedElement(GUIElementEnum::messagesFontSize),
 						createNestedElement(GUIElementEnum::messagesFontColor),
@@ -136,6 +207,10 @@ private:
 						createNestedElement(GUIElementEnum::OBSBypassToggleGUI),
 						createNestedElement(GUIElementEnum::HideWatermarkGUI),
 						}));
+
+				case GUIElementEnum::pcmThemeGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIPCMThemePicker>
+						(game, ToolTipCollection("Poorboys Checkpoint Manager's look: the three styles from the mockups, or Halo Checkpoint Manager's own"), settings->pcmTheme));
 
 				case GUIElementEnum::toggleGUIHotkeyGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHotkeyOnly<63>>

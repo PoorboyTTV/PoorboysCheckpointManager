@@ -110,7 +110,8 @@ RevertEventHook,\
 ForceMissionRestart,\
 GameEngineDetail,\
 GameEngineFunctions,\
-ViewAngle3D
+ViewAngle3D,\
+Halo2Physics
 
 
 enum class OptionalCheatEnum {

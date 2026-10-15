@@ -117,7 +117,16 @@ cameraFOVIncreaseBinding,\
 cameraFOVDecreaseBinding
 
 // both event and non-event hotkeys are rebindable
-#define ALL_REBINDABLE_HOTKEYS ALL_EVENTONPRESS_HOTKEYS, NOEVENT_HOTKEYS, SKULL_HOTKEYS
+// Poorboys Checkpoint Manager: Halo 2 physics (own group, so HCM's lists keep their free slots)
+#define H2P_HOTKEYS \
+h2pPhysicsHotkey, \
+h2pBarriersCycleHotkey, \
+h2pTick30Hotkey, \
+h2pCombosHotkey, \
+h2pNoFallDeathsHotkey, \
+h2pArmHotkey
+
+#define ALL_REBINDABLE_HOTKEYS ALL_EVENTONPRESS_HOTKEYS, NOEVENT_HOTKEYS, SKULL_HOTKEYS, H2P_HOTKEYS
 
 
 //enum class RebindableHotkeyEnum : int {

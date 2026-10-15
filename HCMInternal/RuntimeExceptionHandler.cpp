@@ -15,7 +15,7 @@ void RuntimeExceptionHandler::handleMessage(HCMExceptionBase& ex)
 
 	mMessagesGUI->addMessage(
 		std::format(
-			"An error occured:\n{}\nSee HCMInternal_logging.txt for more info, and send it to Burnt so he can fix it.", 
+			"An error occured:\n{}\nSee HCMInternal_logging.txt for more info, and send it to Poorboy (this is Poorboys Checkpoint Manager, not Burnt's Halo Checkpoint Manager).", 
 			ex.what()));
 
 }

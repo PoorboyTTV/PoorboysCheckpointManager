@@ -108,6 +108,45 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 		{GUIElementEnum::naturalCheckpointDisableGUI,
 			{OptionalCheatEnum::NaturalCheckpointDisable}
 	},
+	{GUIElementEnum::halo2PhysicsHeadingGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pStatusGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pPhysicsToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pArmGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pBarriersGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pTick30ToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pCombosToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pNoFallDeathsToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pHelpersSubheading,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pCalloutsToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pOpenMapWindowGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pOpenWorldLinesGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pCloseHelpersGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
 	{GUIElementEnum::dumpCoreForcesSave,
 			{OptionalCheatEnum::DumpCore, OptionalCheatEnum::ForceCoreSave}
 	},

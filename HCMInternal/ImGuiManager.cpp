@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ImGuiManager.h"
+#include "PCMTheme.h"
 #include "GlobalKill.h"
 #include "ProggyVectorRegularFont.h"
 #include "imgui_internal.h"
@@ -86,44 +87,8 @@ void ImGuiManager::initializeImGuiResources(ID3D11Device* pDevice, ID3D11DeviceC
 
 	PLOG_DEBUG << "ImGui Initialized";
 
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	ImGuiStyle* style = &ImGui::GetStyle();
-	style->FrameRounding = 0;
-	style->WindowBorderSize = 0;
-	style->WindowRounding = 0;
-	style->FrameBorderSize = 1;
-
-	// Colors
-	style->Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.04f, 0.08f, 1.00f);
-	style->Colors[ImGuiCol_ChildBg] = ImVec4(0.18f, 0.10f, 0.18f, 0.50f);
-	style->Colors[ImGuiCol_Text] = ImVec4(0.80f, 0.90f, 0.90f, 1.00f);
-	style->Colors[ImGuiCol_TextDisabled] = ImVec4(0.24f, 0.29f, 0.29f, 1.00f);
-
-	style->Colors[ImGuiCol_Border] = ImVec4(0.40f, 0.50f, 0.50f, 0.38f);
-	style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
-
-	style->Colors[ImGuiCol_FrameBg] = ImVec4(0.35f, 0.09f, 0.12f, 1.00f);
-	//style->Colors[ImGuiCol_FrameBg] = ImVec4(0.95f, 0.99f, 0.12f, 1.00f);
-	style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.55f, 0.23f, 0.29f, 1.00f);
-	style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.81f, 0.23f, 0.29f, 1.00f);
-
-	style->Colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 0.9f, 0.6f, 0.7f);
-	style->Colors[ImGuiCol_Button] = ImVec4(0.30f, 0.09f, 0.12f, 1.00f);
-	style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.50f, 0.23f, 0.29f, 1.00f);
-	style->Colors[ImGuiCol_ButtonActive] = ImVec4(0.75f, 0.23f, 0.29f, 1.00f);
-
-	style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.75f, 0.43f);
-
-	style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.90f, 0.70f, 0.73f, 0.31f);
-	style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.05f, 0.07f, 1.00f);
-
-	style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.f, 0.f, 0.f, 0.f);
-	style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.35f, 0.09f, 0.12f, 0.7f);
-
-	style->Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.1f, 0.00f, 0.1f, 0.3f);
-
-	style->IndentSpacing = 10.f;
+	// Setup Dear ImGui style: Poorboys Checkpoint Manager's themes (PCMTheme.cpp; HCM's own maroon is one of them)
+	PCMTheme::applyPending();
 
 	// setup font
 	io.Fonts->AddFontDefault();
@@ -216,6 +181,7 @@ void ImGuiManager::onPresentHookEvent(ID3D11Device* pDevice, ID3D11DeviceContext
 
 
 	// Start ImGui frame
+	PCMTheme::applyPending();       // a theme picked since the last frame
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();

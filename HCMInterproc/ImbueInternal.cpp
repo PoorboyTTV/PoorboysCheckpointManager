@@ -29,8 +29,8 @@ void InjectModule(DWORD pid, std::string dllFilePath);
 bool processContainsModule(DWORD pid, std::wstring moduleName);
 
 
-constexpr auto dllName = "HCMInternal";
-constexpr WCHAR wdllChars[] = L"HCMInternal.dll";
+constexpr auto dllName = "PCMInternal";
+constexpr WCHAR wdllChars[] = L"PCMInternal.dll";
 
 
 // throws InjectionException on failure
@@ -68,7 +68,7 @@ void SetupInternal(DWORD mccPID)
 		else
 			throw InjectionException(std::format("Could not find or read {}.dll! Error: {}", dllName, GetErrorMessage(GetLastError())).c_str());
 
-		PLOG_DEBUG << "Found HCMInternal.dll at " << dllFilePath;
+		PLOG_DEBUG << "Found PCMInternal.dll at " << dllFilePath;
 
 		if (!mccPID) throw InjectionException("Was passed null mcc process ID!");
 
@@ -302,7 +302,7 @@ void InjectModule(DWORD pid, std::string dllFilePath)
 				{
 					ex.append(
 						std::format(
-							"\n\nGranted handle access was not desired handle access! \nThis probably (? not sure tbh) means an anti-cheat is running, stripping access rights. \nGranted access rights were: 0x{:04X}\nDifference is: 0x{:04X}", 
+							"\n\nMCC is protected, almost certainly by Easy Anti-Cheat: close MCC, then in Steam press Play and pick \"Halo: MCC Anti-Cheat Disabled\".\n(Granted access rights were: 0x{:04X}, missing: 0x{:04X})", 
 							grantedMCCAccess, missingRights));
 				}
 			}

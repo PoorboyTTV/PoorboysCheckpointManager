@@ -46,7 +46,7 @@
 
         <Border Grid.Row="1"  CornerRadius="8,8,0,0" Grid.ColumnSpan="3" Margin="6">
             <Border.Background>
-                <ImageBrush Stretch="Fill" ImageSource="pack://application:,,,/HCMExternal;component/Images/nofile.png">
+                <ImageBrush Stretch="Fill" ImageSource="pack://application:,,,/Images/nofile.png">
                 </ImageBrush>
             </Border.Background>
         </Border>

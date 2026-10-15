@@ -1,11 +1,24 @@
-# HaloCheckpointManager
-*A practice tool for [Halo: The Master Chief Collection](https://store.steampowered.com/app/976730/Halo_The_Master_Chief_Collection/)*
+# Poorboys Checkpoint Manager
+*A practice tool for [Halo: The Master Chief Collection](https://store.steampowered.com/app/976730/Halo_The_Master_Chief_Collection/): Halo Checkpoint Manager with Halo 2's physics built in for Halo 3 and Halo 3: ODST.*
 
----**Download**---  
-From the [Releases page.](https://github.com/Burnt-o/HaloCheckpointManager/releases)  
+## Credits
+* **Poorboy**: Poorboys Checkpoint Manager and its Halo 2 physics for Halo 3 and ODST: Halo 2's superbounces, movement and jump, button combos, solid objects (riding lifts, pushing crates), and the barrier, tick-rate and falling-death switches.
+* **Burnt-o (Maurice Dix) and Harc**: [Halo Checkpoint Manager](https://github.com/Burnt-o/HaloCheckpointManager), which all of this is built on: dumping and injecting checkpoints, the checkpoint library, the in-game overlay, the hotkey system and every practice cheat (invulnerability, speedhack, teleport, free camera and the rest). Everything that is not the Halo 2 physics is their work.
+* Third-party libraries: see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
----**Features**---
-* Back up (dump) to file the games checkpoints, so you can inject them again at any later time. 
+## What it adds to Halo Checkpoint Manager
+A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every switch with a rebindable hotkey:
+* Halo 2 physics on / off (Halo 2's player body, movement and jump; superbounces work as in Halo 2)
+* Barriers: the game's own, soft ceilings off, out-of-bounds kill off, kill volumes off
+* 30 tick (Halo 2's rate) or MCC's 60
+* Halo 2's button combos
+* Falling deaths on / off
+* Live status: armed or not, speed against the 5.45 a step has to pass
+
+It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.
+
+## Halo Checkpoint Manager's features (all still here)
+* Back up (dump) to file the games checkpoints, so you can inject them again at any later time.
 * UI for managing your checkpoint collection (ordering, sorting, renaming etc).
 * Single-player cheats to help you practice and route the games, such as
    * Force custom checkpoints & back them up
@@ -14,19 +27,13 @@ From the [Releases page.](https://github.com/Burnt-o/HaloCheckpointManager/relea
    * Block the games natural checkpoints
    * Teleport and Launch the player
    * And more (specific games have different features)
- * Support for multiple downpatched versions of MCC - Season 7 (2448), Season 8 (2645), and of course current patch.
+* Support for multiple downpatched versions of MCC - Season 7 (2448), Season 8 (2645), and of course current patch.
 
----**Building from source**---   
-To build the source yourself, grab the latest version of [Visual Studio](https://visualstudio.microsoft.com/) and the following workloads/components:  
- * .NET desktop development (and .NET 7.0 runtime)  
- * Desktop development with C++  
- * Windows 10 SDK (or higher)
-    
-HCM uses vcpkg manifest files for C++ dependecies. With Visual Studio this should all be automatic. 
-I haven't tried building outside of this VS environment so YMMV if you try otherwise. 
+Anti-cheat must be off, as for Halo Checkpoint Manager.
 
-This project also makes heavy use of the amazing SafetyHook by cursey. You can think of it as like "Microsoft Detours but if it didn't suck". I've included the release I'm using in this repository so you shouldn't need to worry about it.
+## Building from source
+Visual Studio 2022 with .NET desktop development, Desktop development with C++ and a Windows 10 SDK. The C++ dependencies come from vcpkg manifests, pinned to a 2025-07 vcpkg (`builtin-baseline` in each `vcpkg.json`; newer curl ports dropped the `non-http` and `schannel` features these projects ask for). With a vcpkg clone that is not integrated into Visual Studio:
 
-After successfully building all projects (besides HCMInternalTests, that doesn't matter), make sure to rebuild the entire solution to ensure all build events fire correctly.
+    msbuild HaloCheckpointManager.sln /restore /m /p:Configuration=Release /p:Platform=x64 /p:VcpkgRoot=<vcpkg>\ /p:ForceImportBeforeCppTargets=<vcpkg>\scripts\buildsystems\msbuild\vcpkg.targets
 
-Known build issue: Your build events may fail to copy over certain files to the correct directory due to macro issues: fix this by adjusting the build event macros for each project to make sure they're outputting to HCMExternal's binary output directory.
+Everything lands in `HCMExternal\bin\x64\Release\net7.0-windows\`; run `PoorboysCheckpointManager.exe`. The original notes: SafetyHook by cursey is included as a submodule; after a first full build, rebuild the whole solution so all build events fire.

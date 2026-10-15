@@ -72,9 +72,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)HCMExternal\bin\$(Platform)\$(Configuration)\net7.0-windows</OutDir>
+    <TargetName>PCMSpeedhack</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)HCMExternal\bin\$(Platform)\$(Configuration)\net7.0-windows</OutDir>
+    <TargetName>PCMSpeedhack</TargetName>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgUseStatic>true</VcpkgUseStatic>

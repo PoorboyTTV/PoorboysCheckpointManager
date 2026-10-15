@@ -96,10 +96,10 @@ public:
 		messagesGUIWeak(dicon.Resolve<IMessagesGUI>()),
 		runtimeExceptions(dicon.Resolve<RuntimeExceptionHandler>())
 	{
-		// load HCMSpeedhack.dll
+		// load PCMSpeedhack.dll
 		auto dirPathCont = dicon.Resolve<DirPathContainer>().lock();
 		std::string speedhackPath = dirPathCont->dirPath;
-		speedhackPath += "\\HCMSpeedhack.dll";
+		speedhackPath += "\\PCMSpeedhack.dll";
 
 		if (!fileExists(speedhackPath)) throw HCMInitException(std::format("Speedhack dll missing at {}", speedhackPath));
 

@@ -11,7 +11,7 @@
         ResizeMode="NoResize"
         ShowInTaskbar="False"
         WindowStartupLocation="CenterOwner"
-        Title="HCM Error" 
+        Title="Poorboys Checkpoint Manager - Error" 
         Height="400" 
         Width="550"
        xmlns:viewModels="clr-namespace:HCMExternal.ViewModels"
@@ -33,12 +33,8 @@
         </Grid.RowDefinitions>
 
         <TextBlock  Padding="10, 10, 10, 10" TextWrapping="Wrap" Width="530" Grid.Row="0" Text="{Binding Path=ErrorMessage}"/>
-        <TextBlock Padding="10, 10, 10, 5"  TextWrapping="Wrap" Width="530"   Grid.Row="1">Please send Burnt your HCMExternal.log file, HCMInternal.log file, and HCM_CRASHDUMP files (if one exists), and a description of the context of the error. The best place to send them is:</TextBlock>
-        <TextBlock Padding="10, 0, 10, 10"  Grid.Row="2">
-            <Hyperlink NavigateUri="https://discord.gg/PXHpSJyrdE" RequestNavigate="Hyperlink_RequestNavigate">
-                Burnts Tool Testing Discord
-            </Hyperlink>
-        </TextBlock>
+        <TextBlock Padding="10, 10, 10, 5"  TextWrapping="Wrap" Width="530"   Grid.Row="1">This is Poorboys Checkpoint Manager, a modified version of Halo Checkpoint Manager: please send problems with it to Poorboy, not to Burnt.</TextBlock>
+        <TextBlock Padding="10, 0, 10, 10"  TextWrapping="Wrap" Width="530" Grid.Row="2">Include the files in the Logs folder next to PoorboysCheckpointManager.exe, any HCM_CRASHDUMP file, and what you were doing when it happened.</TextBlock>
         <TextBlock Padding="10, 10, 10, 5"  Grid.Row="3">Retry injection?</TextBlock>
         <!-- Accept or Cancel -->
         <StackPanel Margin="10,0,0,10" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left">

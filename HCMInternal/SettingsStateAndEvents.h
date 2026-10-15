@@ -61,6 +61,12 @@ public:
 	std::shared_ptr<ActionEvent> abilityMeterToggleHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> sensDriftOverlayToggleHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> shieldInputPrinterHotkeyEvent = std::make_shared<ActionEvent>();
+	// Poorboys Checkpoint Manager: Halo 2 physics (Halo2Physics.cpp)
+	std::shared_ptr<ActionEvent> h2pPhysicsHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pBarriersCycleHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pTick30HotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pCombosHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pNoFallDeathsHotkeyEvent = std::make_shared<ActionEvent>();
 	
 	
 
@@ -574,6 +580,27 @@ public:
 		);
 
 
+
+	// Poorboys Checkpoint Manager: Halo 2 physics. The master switch loads the mod (h3sb.dll) with the options below,
+	// off unloads it and leaves the game untouched. The options' defaults are the ones the Start script used.
+	std::shared_ptr<BinarySetting<bool>> h2pPhysicsToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pPhysicsToggle));
+	std::shared_ptr<BinarySetting<int>> h2pBarriers = std::make_shared<BinarySetting<int>>
+		(2, [](int in) { return in >= 0 && in <= 3; }, nameof(h2pBarriers)); // 0 the game's, 1 soft ceilings off, 2 + out-of-bounds kill off, 3 + kill volumes off
+	std::shared_ptr<BinarySetting<bool>> h2pTick30Toggle = std::make_shared<BinarySetting<bool>>
+		(true, [](bool in) { return true; }, nameof(h2pTick30Toggle));
+	std::shared_ptr<BinarySetting<bool>> h2pCombosToggle = std::make_shared<BinarySetting<bool>>
+		(true, [](bool in) { return true; }, nameof(h2pCombosToggle));
+	std::shared_ptr<BinarySetting<bool>> h2pNoFallDeathsToggle = std::make_shared<BinarySetting<bool>>
+		(true, [](bool in) { return true; }, nameof(h2pNoFallDeathsToggle));
+	std::shared_ptr<BinarySetting<bool>> h2pCalloutsToggle = std::make_shared<BinarySetting<bool>>
+		(true, [](bool in) { return true; }, nameof(h2pCalloutsToggle)); // the map window also speaks its call-outs
+	std::shared_ptr<BinarySetting<int>> pcmTheme = std::make_shared<BinarySetting<int>>
+		(0, [](int in) { return in >= 0 && in <= 3; }, nameof(pcmTheme)); // PCMTheme::Style
+	std::shared_ptr<ActionEvent> h2pArmEvent = std::make_shared<ActionEvent>();          // button and hotkey: the armed state now
+	std::shared_ptr<ActionEvent> h2pOpenMapWindowEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pOpenWorldLinesEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pCloseHelpersEvent = std::make_shared<ActionEvent>();
 
 	std::shared_ptr<BinarySetting<bool>> naturalCheckpointDisable = std::make_shared<BinarySetting<bool>>
 		(
@@ -2213,6 +2240,13 @@ public:
 		consoleCommandFreeCursor,
 		consoleCommandBlockInput,
 		consoleCommandPauseGame,
+		h2pPhysicsToggle,
+		h2pBarriers,
+		h2pTick30Toggle,
+		h2pCombosToggle,
+		h2pNoFallDeathsToggle,
+		h2pCalloutsToggle,
+		pcmTheme,
 
 	};
 

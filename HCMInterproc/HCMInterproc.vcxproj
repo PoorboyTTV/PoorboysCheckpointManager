@@ -77,6 +77,7 @@
     <OutDir>$(SolutionDir)HCMExternal\bin\$(Platform)\$(Configuration)\net7.0-windows</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
+    <VcpkgTriplet>x64-windows-static</VcpkgTriplet>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -139,6 +140,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING;NDEBUG;HCMINTERPROC_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <!-- Poorboys Checkpoint Manager: the C++ runtime inside the dll (as PCMInternal / PCMSpeedhack), so nobody has to install the VC++ redistributable -->
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>

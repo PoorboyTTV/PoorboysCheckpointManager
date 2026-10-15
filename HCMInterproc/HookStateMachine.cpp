@@ -67,7 +67,7 @@ private:
 			// Check for EAC (error if found)
 			if (anticheatIsEnabled())
 			{
-                ADVANCE_STATE_MACHINE_ERROR(HookStateEnum::MCCEACError, L"HCM detected EasyAntiCheat running - you must run MCC with easy anti-cheat disabled.");
+                ADVANCE_STATE_MACHINE_ERROR(HookStateEnum::MCCEACError, L"Easy Anti-Cheat is running, so MCC cannot be modded.\nClose MCC, then in Steam press Play and pick \"Halo: MCC Anti-Cheat Disabled\".");
 			}
 			else
 			{

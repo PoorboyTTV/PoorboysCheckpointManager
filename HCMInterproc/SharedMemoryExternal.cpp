@@ -20,14 +20,14 @@ SharedMemoryExternal::SharedMemoryExternal(bool CPnullData,
 	try
 	{
 		// remove shared memory if it already exists
-		bip::shared_memory_object::remove("hcm_shm");
+		bip::shared_memory_object::remove("pcm_shm");
 
 		// allow process (hcminternal via mcc) without privledges to access sharedMem even if HCMExternal is privledged
 		bip::permissions  unrestricted_permissions;
 		unrestricted_permissions.set_unrestricted();
 
 		// create segment with unrestricted permissions
-		segment = bip::managed_shared_memory(bip::create_only, "hcm_shm", 65536, 0, unrestricted_permissions);
+		segment = bip::managed_shared_memory(bip::create_only, "pcm_shm", 65536, 0, unrestricted_permissions);
 
 		auto* segmentManager = segment.get_segment_manager();
 		shm_string::allocator_type sa(segmentManager);

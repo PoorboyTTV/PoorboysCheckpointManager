@@ -173,7 +173,7 @@ namespace HCMExternal.ViewModels
                         }
                         catch(Exception ex)
                         {
-                            System.Windows.MessageBox.Show("Could not move checkpoint into folder:\n" + ex.Message + "\n\n" + ex.StackTrace, "HaloCheckpointManager Error", System.Windows.MessageBoxButton.OK);
+                            System.Windows.MessageBox.Show("Could not move checkpoint into folder:\n" + ex.Message + "\n\n" + ex.StackTrace, "Poorboys Checkpoint Manager - Error", System.Windows.MessageBoxButton.OK);
                         }
                     }
                     break;

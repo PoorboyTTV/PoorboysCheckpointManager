@@ -133,7 +133,7 @@ namespace HCMExternal.ViewModels
         {
 
             if (FileViewModel.SelectedCheckpoint == null)
-                System.Windows.MessageBox.Show("Failed to Inject! \n" + "No checkpoint selected!", "HaloCheckpointManager Error", System.Windows.MessageBoxButton.OK);
+                System.Windows.MessageBox.Show("Failed to Inject! \n" + "No checkpoint selected!", "Poorboys Checkpoint Manager - Error", System.Windows.MessageBoxButton.OK);
             else
             {
                 if (FileViewModel.SelectedGame.Equals(HaloGame.ProjectCartographer))

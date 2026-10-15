@@ -472,6 +472,18 @@
     <ClInclude Include="NaturalCheckpointDisable.h">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClInclude>
+    <ClInclude Include="Halo2Physics.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIH2Physics.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
+    <ClInclude Include="h3sb_api.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
+    <ClInclude Include="PCMTheme.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
     <ClInclude Include="InfiniteAmmo.h">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClInclude>
@@ -1252,6 +1264,12 @@
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClCompile>
     <ClCompile Include="NaturalCheckpointDisable.cpp">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Halo2Physics.cpp">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="PCMTheme.cpp">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClCompile>
     <ClCompile Include="BottomlessClip.cpp">

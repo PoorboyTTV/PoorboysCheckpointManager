@@ -10,7 +10,7 @@
         xmlns:viewModels="clr-namespace:HCMExternal.ViewModels"
 
         mc:Ignorable="d"
-        Title="HaloCheckpointManager" Height="593" Width="760"
+        Title="Poorboys Checkpoint Manager - built on Halo Checkpoint Manager by Burnt-o and Harc" Height="593" Width="760"
         MinHeight="593" MinWidth="725"
 
         

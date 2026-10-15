@@ -25,6 +25,8 @@ namespace HCMExternal
     {
 
 
+        // Poorboys Checkpoint Manager's own version (the HCM version below stays what the pointer data checks)
+        public const string PcmVersion = "1.0.1";
         public string CurrentHCMVersion = "unset";
 
         public App()
@@ -75,7 +77,7 @@ namespace HCMExternal
                 (pointerData, string pointerErrors) = PointerDataServiceFactory.MakePointerDataService();
                 if (pointerErrors != "")
                 { 
-                    ShowError("Some pointers failed to load. Yell at Burnt for making typos.\n" + pointerErrors); 
+                    ShowError("Some pointers failed to load.\n" + pointerErrors); 
                 }
             }
             catch (Exception ex)
@@ -104,7 +106,7 @@ namespace HCMExternal
             Resources.MergedDictionaries[0].Source = new Uri($"/Themes/{appTheme}.xaml", UriKind.Relative);
 
 
-            mainWindow.Title = "HaloCheckpointManager " + (CurrentHCMVersion.Length > 4 ? CurrentHCMVersion.Substring(0, 5) : CurrentHCMVersion);
+            mainWindow.Title = "Poorboys Checkpoint Manager " + PcmVersion + " - built on Halo Checkpoint Manager " + (CurrentHCMVersion.Length > 4 ? CurrentHCMVersion.Substring(0, 5) : CurrentHCMVersion) + " by Burnt-o and Harc";
             mainWindow.Show();
 
             interproc.initializeSharedMemory(mainViewModel.FileViewModel.SelectedCheckpoint, mainViewModel.FileViewModel.SelectedSaveFolder, mainViewModel.FileViewModel.SelectedGame);
@@ -128,7 +130,7 @@ namespace HCMExternal
         private void ShowError(string error)
         {
             Log.Error(error);
-            System.Windows.MessageBox.Show(error, "HaloCheckpointManager Error", System.Windows.MessageBoxButton.OK);
+            System.Windows.MessageBox.Show(error, "Poorboys Checkpoint Manager - Error", System.Windows.MessageBoxButton.OK);
         }
 
 
@@ -151,7 +153,7 @@ namespace HCMExternal
         //Required files that HCM needs to be able to run.
         private static readonly string[] _requiredAssemblies =
         {
-                       @"HCMInternal.dll",
+                       @"PCMInternal.dll",
                        @"HCMInterproc.dll"
         };
 

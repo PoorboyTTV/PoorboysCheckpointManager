@@ -30,6 +30,11 @@ class HotkeyEventsLambdas
 	ScopedCallback<ActionEvent> mabilityMeterToggleHotkeyEventCallbackHandle;
 	ScopedCallback<ActionEvent> msensDriftOverlayToggleHotkeyEventCallbackHandle;
 	ScopedCallback<ActionEvent> mshieldInputPrinterToggleHotkeyEventCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pPhysicsHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pBarriersCycleHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pTick30HotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pCombosHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pNoFallDeathsHotkeyCallbackHandle;
 	
 
 public:
@@ -56,7 +61,12 @@ public:
 		msoftCeilingOverlayToggleHotkeyEventCallbackHandle(settings->softCeilingOverlayToggleHotkeyEvent, [boolsetting = settings->softCeilingOverlayToggle]() {boolsetting->flipBoolSetting(); }),
 		mabilityMeterToggleHotkeyEventCallbackHandle(settings->abilityMeterToggleHotkeyEvent, [boolsetting = settings->abilityMeterOverlayToggle]() {boolsetting->flipBoolSetting(); }),
 		msensDriftOverlayToggleHotkeyEventCallbackHandle(settings->sensDriftOverlayToggleHotkeyEvent, [boolsetting = settings->sensDriftOverlayToggle]() {boolsetting->flipBoolSetting(); }),
-		mshieldInputPrinterToggleHotkeyEventCallbackHandle(settings->shieldInputPrinterHotkeyEvent, [boolsetting = settings->shieldInputPrinterToggle]() {boolsetting->flipBoolSetting(); })
+		mshieldInputPrinterToggleHotkeyEventCallbackHandle(settings->shieldInputPrinterHotkeyEvent, [boolsetting = settings->shieldInputPrinterToggle]() {boolsetting->flipBoolSetting(); }),
+		mh2pPhysicsHotkeyCallbackHandle(settings->h2pPhysicsHotkeyEvent, [boolsetting = settings->h2pPhysicsToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pBarriersCycleHotkeyCallbackHandle(settings->h2pBarriersCycleHotkeyEvent, [intsetting = settings->h2pBarriers]() { intsetting->GetValueDisplay() = (intsetting->GetValue() + 1) % 4; intsetting->UpdateValueWithInput(); }),
+		mh2pTick30HotkeyCallbackHandle(settings->h2pTick30HotkeyEvent, [boolsetting = settings->h2pTick30Toggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pCombosHotkeyCallbackHandle(settings->h2pCombosHotkeyEvent, [boolsetting = settings->h2pCombosToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pNoFallDeathsHotkeyCallbackHandle(settings->h2pNoFallDeathsHotkeyEvent, [boolsetting = settings->h2pNoFallDeathsToggle]() { boolsetting->flipBoolSetting(); })
 		
 
 	{ PLOG_DEBUG << "HotkeyEvents con"; }
