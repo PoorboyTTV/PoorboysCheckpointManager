@@ -124,7 +124,8 @@ h2pBarriersCycleHotkey, \
 h2pTick30Hotkey, \
 h2pCombosHotkey, \
 h2pNoFallDeathsHotkey, \
-h2pArmHotkey
+h2pArmHotkey, \
+h2pFlyHotkey
 
 #define ALL_REBINDABLE_HOTKEYS ALL_EVENTONPRESS_HOTKEYS, NOEVENT_HOTKEYS, SKULL_HOTKEYS, H2P_HOTKEYS
 

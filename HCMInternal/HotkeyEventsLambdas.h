@@ -35,6 +35,7 @@ class HotkeyEventsLambdas
 	ScopedCallback<ActionEvent> mh2pTick30HotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pCombosHotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pNoFallDeathsHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pFlyHotkeyCallbackHandle;
 	
 
 public:
@@ -66,7 +67,8 @@ public:
 		mh2pBarriersCycleHotkeyCallbackHandle(settings->h2pBarriersCycleHotkeyEvent, [intsetting = settings->h2pBarriers]() { intsetting->GetValueDisplay() = (intsetting->GetValue() + 1) % 4; intsetting->UpdateValueWithInput(); }),
 		mh2pTick30HotkeyCallbackHandle(settings->h2pTick30HotkeyEvent, [boolsetting = settings->h2pTick30Toggle]() { boolsetting->flipBoolSetting(); }),
 		mh2pCombosHotkeyCallbackHandle(settings->h2pCombosHotkeyEvent, [boolsetting = settings->h2pCombosToggle]() { boolsetting->flipBoolSetting(); }),
-		mh2pNoFallDeathsHotkeyCallbackHandle(settings->h2pNoFallDeathsHotkeyEvent, [boolsetting = settings->h2pNoFallDeathsToggle]() { boolsetting->flipBoolSetting(); })
+		mh2pNoFallDeathsHotkeyCallbackHandle(settings->h2pNoFallDeathsHotkeyEvent, [boolsetting = settings->h2pNoFallDeathsToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pFlyHotkeyCallbackHandle(settings->h2pFlyHotkeyEvent, [boolsetting = settings->h2pFlyToggle]() { boolsetting->flipBoolSetting(); })
 		
 
 	{ PLOG_DEBUG << "HotkeyEvents con"; }

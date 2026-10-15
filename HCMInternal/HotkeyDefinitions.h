@@ -513,6 +513,11 @@ private:
 		mSettings->h2pArmEvent,
 		vsk{}),
 
+		// unbound too: F1-F11 are taken and F12 is Steam's screenshot key
+		initEventOnPressHotkey(h2pFlyHotkey,
+		mSettings->h2pFlyHotkeyEvent,
+		vsk{}),
+
 
 
 		

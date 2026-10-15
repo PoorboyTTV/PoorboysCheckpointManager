@@ -131,6 +131,8 @@ private:
 						createNestedElement(GUIElementEnum::h2pStatusGUI),
 						createNestedElement(GUIElementEnum::h2pPhysicsToggleGUI),
 						createNestedElement(GUIElementEnum::h2pArmGUI),
+						createNestedElement(GUIElementEnum::h2pFlyToggleGUI),
+						createNestedElement(GUIElementEnum::h2pFlySpeedGUI),
 						createNestedElement(GUIElementEnum::h2pBarriersGUI),
 						createNestedElement(GUIElementEnum::h2pTick30ToggleGUI),
 						createNestedElement(GUIElementEnum::h2pCombosToggleGUI),
@@ -149,6 +151,14 @@ private:
 				case GUIElementEnum::h2pArmGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>
 						(game, ToolTipCollection("Puts the Halo 2 body in the armed state now (what standing up inside geometry does), so you can go straight to a bounce spot. Like Halo 2, it is lost if you stand still long enough to fall asleep. Bind it to a key or a controller button with the .. button"), RebindableHotkeyEnum::h2pArmHotkey, "Arm now", settings->h2pArmEvent));
+
+				case GUIElementEnum::h2pFlyToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Fly your player where you look: stick forward/back/sideways, jump up, crouch down, through walls. Works online in custom games (others see you fly) and with Halo 2 physics on or off. To watch without being seen, use Free Camera (Camera section). Always starts off; bind it with the .. button"), RebindableHotkeyEnum::h2pFlyHotkey, "Fly", settings->h2pFlyToggle));
+
+				case GUIElementEnum::h2pFlySpeedGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(1.f, 40.f)>>
+						(game, ToolTipCollection("Fly speed in world units a second (running is about 2.25)"), "Fly speed##h2p", settings->h2pFlySpeed));
 
 				case GUIElementEnum::h2pBarriersGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIH2PhysicsBarriers>

@@ -67,6 +67,7 @@ public:
 	std::shared_ptr<ActionEvent> h2pTick30HotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pCombosHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pNoFallDeathsHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pFlyHotkeyEvent = std::make_shared<ActionEvent>();
 	
 	
 
@@ -593,6 +594,11 @@ public:
 		(true, [](bool in) { return true; }, nameof(h2pCombosToggle));
 	std::shared_ptr<BinarySetting<bool>> h2pNoFallDeathsToggle = std::make_shared<BinarySetting<bool>>
 		(true, [](bool in) { return true; }, nameof(h2pNoFallDeathsToggle));
+	// fly: not saved (starts off every time, so nobody spawns flying); its speed is saved, world units a second
+	std::shared_ptr<BinarySetting<bool>> h2pFlyToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pFlyToggle));
+	std::shared_ptr<BinarySetting<float>> h2pFlySpeed = std::make_shared<BinarySetting<float>>
+		(8.f, [](float in) { return in >= 0.5f && in <= 100.f; }, nameof(h2pFlySpeed));
 	std::shared_ptr<BinarySetting<bool>> h2pCalloutsToggle = std::make_shared<BinarySetting<bool>>
 		(true, [](bool in) { return true; }, nameof(h2pCalloutsToggle)); // the map window also speaks its call-outs
 	std::shared_ptr<BinarySetting<int>> pcmTheme = std::make_shared<BinarySetting<int>>
@@ -2245,6 +2251,7 @@ public:
 		h2pTick30Toggle,
 		h2pCombosToggle,
 		h2pNoFallDeathsToggle,
+		h2pFlySpeed,
 		h2pCalloutsToggle,
 		pcmTheme,
 

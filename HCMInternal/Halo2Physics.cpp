@@ -17,6 +17,8 @@ namespace
 		bool tick30;
 		bool combos;
 		bool noFallDeaths;
+		bool fly;            // h3sb_fly.txt; works with physics off too (the mod is then loaded for it alone, mode 0)
+		float flySpeed;
 	};
 
 	// The one mod in the process, whichever game's cheat instance asks.
@@ -27,11 +29,30 @@ namespace
 		std::atomic<bool> mUnloadAsked = false;     // mode 9 written: the dll takes itself out within a quarter second
 		PROCESS_INFORMATION mLive{}, mWorld{};      // helper windows started from here
 		std::string mLastError;
+		bool mSaidPhysics = false, mSaidFly = false; // what the message log was last told (both games' instances call apply)
 
 		void writeSwitch(const wchar_t* name, int value)
 		{
 			std::ofstream f(std::filesystem::path(mDir + name), std::ios::trunc);
 			f << value;
+		}
+
+		void writeFly(bool on, float speed)
+		{
+			std::ofstream f(std::filesystem::path(mDir + L"h3sb_fly.txt"), std::ios::trunc);
+			f.imbue(std::locale::classic());
+			f << (on ? 1 : 0) << ' ' << std::clamp(speed, 0.5f, 100.f);
+		}
+
+		// a line for the message log when physics or fly changed since the last call ("" = nothing new)
+		std::string news(const H3sbOptions& o)
+		{
+			std::string line;
+			if (o.physics != mSaidPhysics) line = o.physics ? "Halo 2 physics on" : "Halo 2 physics off: the game's own physics again";
+			if (o.fly != mSaidFly) line += std::string(line.empty() ? "" : ". ") + (o.fly ? "Fly on: stick where you look, jump up, crouch down" : "Fly off");
+			mSaidPhysics = o.physics;
+			mSaidFly = o.fly;
+			return line;
 		}
 
 		static bool loaded() { return GetModuleHandleW(L"h3sb.dll") != nullptr; }
@@ -92,15 +113,15 @@ namespace
 		{
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return "";
-			if (!o.physics)
+			if (!o.physics && !o.fly)
 			{
 				if (loaded() && !mUnloadAsked)
 				{
+					writeFly(false, o.flySpeed);
 					writeSwitch(L"h3sb_mode.txt", 9);
 					mUnloadAsked = true;
-					return "Halo 2 physics off: the game's own physics again";
 				}
-				return "";
+				return news(o);
 			}
 			const std::wstring dll = mDir + L"h3sb.dll";
 			if (!std::filesystem::exists(dll)) throw HCMRuntimeException(fail(std::format("Halo 2 physics: h3sb.dll is missing at {}", std::filesystem::path(dll).string())));
@@ -111,12 +132,14 @@ namespace
 				if (loaded()) throw HCMRuntimeException(fail("Halo 2 physics: the mod did not unload; switch it on again in a moment"));
 			}
 			mUnloadAsked = false;
-			writeSwitch(L"h3sb_tick.txt", o.tick30 ? 30 : 60);
-			writeSwitch(L"h3sb_barriers.txt", std::clamp(o.barriers, 0, 3));
-			writeSwitch(L"h3sb_combos.txt", o.combos ? 1 : 0);
-			writeSwitch(L"h3sb_falls.txt", o.noFallDeaths ? 1 : 0);
-			writeSwitch(L"h3sb_mode.txt", 3);
-			if (loaded()) return "";           // it reads the switches four times a second
+			// fly alone (physics off): the mod in observe mode with the game's own barriers, tick rate, melee and falls
+			writeSwitch(L"h3sb_tick.txt", o.physics && o.tick30 ? 30 : 60);
+			writeSwitch(L"h3sb_barriers.txt", o.physics ? std::clamp(o.barriers, 0, 3) : 0);
+			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
+			writeSwitch(L"h3sb_falls.txt", o.physics && o.noFallDeaths ? 1 : 0);
+			writeFly(o.fly, o.flySpeed);
+			writeSwitch(L"h3sb_mode.txt", o.physics ? 3 : 0);
+			if (loaded()) return news(o);      // it reads the switches four times a second
 			// a new session: the mod records every tick (about 120 MB per half hour), clear the last session's first
 			std::error_code ec;
 			for (auto& e : std::filesystem::directory_iterator(mDir, ec))
@@ -126,7 +149,7 @@ namespace
 			}
 			if (!LoadLibraryW(dll.c_str())) throw HCMRuntimeException(fail(std::format("Halo 2 physics: could not load h3sb.dll (error {})", GetLastError())));
 			mLastError.clear();
-			return "Halo 2 physics on";
+			return news(o);
 		}
 
 		void openMapWindow(bool callouts)
@@ -211,7 +234,8 @@ private:
 	std::shared_ptr<RuntimeExceptionHandler> runtimeExceptions;
 	std::weak_ptr<IMCCStateHook> mccStateHookWeak;
 
-	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback;
+	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback;
+	ScopedCallback<eventpp::CallbackList<void(float&)>> mFlySpeedCallback;
 	ScopedCallback<eventpp::CallbackList<void(int&)>> mBarriersCallback;
 	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mWorldLinesCallback, mCloseHelpersCallback;
 
@@ -220,7 +244,7 @@ private:
 		auto s = mSettingsWeak.lock();
 		if (!s) throw HCMRuntimeException("Halo 2 physics: settings went away");
 		return H3sbOptions{ s->h2pPhysicsToggle->GetValue(), s->h2pBarriers->GetValue(), s->h2pTick30Toggle->GetValue(), s->h2pCombosToggle->GetValue(),
-			s->h2pNoFallDeathsToggle->GetValue() };
+			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue() };
 	}
 
 	void say(const std::string& line)
@@ -267,6 +291,8 @@ public:
 		mCombosCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pCombosToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mNoFallDeathsCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pNoFallDeathsToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mBarriersCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pBarriers->valueChangedEvent, [this](int&) { onChange(); }),
+		mFlyCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlyToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mFlySpeedCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlySpeed->valueChangedEvent, [this](float&) { onChange(); }),
 		mArmCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pArmEvent, [this]() { onArm(); }),
 		mMapWindowCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenMapWindowEvent, [this]() {
 			guarded([this]() { host().openMapWindow(mSettingsWeak.lock()->h2pCalloutsToggle->GetValue()); });

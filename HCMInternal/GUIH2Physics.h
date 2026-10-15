@@ -38,6 +38,20 @@ public:
 			ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f), "On - takes hold once the game runs.");
 			ImGui::TextDisabled("The game is paused while this window is open: close it with its toggle key.");
 		}
+		else if (s.flying)
+		{
+			ImGui::TextColored(ImVec4(0.35f, 0.8f, 1.0f, 1.0f), "FLYING");
+			ImGui::SameLine();
+			ImGui::Text("  speed %.2f", s.speed);
+			ImGui::SameLine();
+			ImGui::TextDisabled("  %s", s.map);
+			ImGui::Dummy(ImVec2(0, (float)GUIFrameHeight));
+		}
+		else if (s.mode == 0)
+		{
+			ImGui::TextDisabled("Halo 2 physics is off (fly is ready)");
+			ImGui::Dummy(ImVec2(0, (float)GUIFrameHeight));
+		}
 		else if (!s.have_body)
 		{
 			ImGui::TextDisabled("Waiting for the player (%s)", s.map);

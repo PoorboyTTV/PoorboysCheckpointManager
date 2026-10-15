@@ -24,6 +24,8 @@
 	((h2pStatusGUI, (Halo3, Halo3ODST)))\
 	((h2pPhysicsToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pArmGUI, (Halo3, Halo3ODST)))\
+	((h2pFlyToggleGUI, (Halo3, Halo3ODST)))\
+	((h2pFlySpeedGUI, (Halo3, Halo3ODST)))\
 	((h2pBarriersGUI, (Halo3, Halo3ODST)))\
 	((h2pTick30ToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pCombosToggleGUI, (Halo3, Halo3ODST)))\

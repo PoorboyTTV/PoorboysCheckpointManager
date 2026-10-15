@@ -9,6 +9,7 @@
 //     h3sb_tick.txt      30 or 60 (MCC's own)
 //     h3sb_combos.txt    1 Halo 2's button combos, 0 the game's own
 //     h3sb_falls.txt     1 no falling damage or falling deaths, 0 the game's own
+//     h3sb_fly.txt       "1 <speed>" fly (any mode, 0 too), speed in world units a second; "0" or no file = off
 #pragma once
 
 #include <stdint.h>
@@ -27,6 +28,8 @@ struct H3sbStatus {
     float velocity[3];
     uint64_t updated_ms;    // GetTickCount64() of the tick these come from (old: menu, paused or loading)
     char map[32];           // the loaded map, e.g. "040_voi"
+    int32_t flying;         // fly is moving the player (h3sb_fly.txt); added after map: a host with the shorter struct
+                            // still gets everything up to map
 };
 
 // h3sb_arm(): the armed state (level -3) on the next tick the Halo 2 body is driven, as if it had stood up inside
