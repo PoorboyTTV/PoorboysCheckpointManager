@@ -1,6 +1,18 @@
 # Poorboys Checkpoint Manager
 *A practice tool for [Halo: The Master Chief Collection](https://store.steampowered.com/app/976730/Halo_The_Master_Chief_Collection/): Halo Checkpoint Manager with Halo 2's physics built in for Halo 3 and Halo 3: ODST.*
 
+## Download
+Get the latest zip from the **Releases** page (on the right). Unzip it, keep the folder together, and run `PoorboysCheckpointManager.exe`. Nothing to install: .NET and the C++ runtime are inside. `HOW TO USE.txt` in the zip has the details.
+
+1. Start MCC with anti-cheat off (Steam: Play, then "Halo: MCC Anti-Cheat Disabled").
+2. Run `PoorboysCheckpointManager.exe` and accept the administrator prompt.
+3. In a Halo 3 or ODST game, open the overlay with ` (the key left of 1), tick **Halo 2 physics** (F6), then close the overlay so the game runs.
+
+Made for MCC 1.3528 on Steam.
+
+## Playing online
+Custom games with friends who also have anti-cheat off. Everyone who wants Halo 2 physics runs the manager themselves: it drives only that player's own character. Turn **30 tick off** online (the game's 60 for everyone). Co-op campaign and Firefight run in lockstep, so a physics mod on one machine can knock them out of sync: stick to multiplayer custom games. So far tested with two players.
+
 ## Credits
 * **Poorboy**: Poorboys Checkpoint Manager and its Halo 2 physics for Halo 3 and ODST: Halo 2's superbounces, movement and jump, button combos, solid objects (riding lifts, pushing crates), and the barrier, tick-rate and falling-death switches.
 * **Burnt-o (Maurice Dix) and Harc**: [Halo Checkpoint Manager](https://github.com/Burnt-o/HaloCheckpointManager), which all of this is built on: dumping and injecting checkpoints, the checkpoint library, the in-game overlay, the hotkey system and every practice cheat (invulnerability, speedhack, teleport, free camera and the rest). Everything that is not the Halo 2 physics is their work.
