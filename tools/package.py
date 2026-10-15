@@ -42,6 +42,10 @@ Made for MCC 1.3528 on Steam.
      F7   barriers (the game's own / soft ceilings off / + out-of-bounds kill off / + kill volumes off)
      F9   30 tick (Halo 2's rate)        F10  Halo 2 button combos        F11  no falling deaths
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
+     Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
+   Save Management: "Save spot" and "Back to spot" put you back where you saved (place, speed, view, armed state)
+   without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
+   Force Checkpoint / Force Revert still roll the whole game back (objects too).
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
 6. Helper windows (in the Halo 2 Physics section): the map window with call-outs, and lines drawn in the world.
 

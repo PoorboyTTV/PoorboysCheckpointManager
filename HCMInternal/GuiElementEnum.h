@@ -54,6 +54,8 @@
 	((HideWatermarkGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((HideWatermarkIncludeMessagesGUI, (ALL_GAMES_AND_MAINMENU)))\
 ((saveManagementHeadingGUI, (ALL_SUPPORTED_GAMES)))\
+	((spotSaveGUI, (Halo3, Halo3ODST)))\
+	((spotBackGUI, (Halo3, Halo3ODST)))\
 	((forceCheckpointGUI, (ALL_SUPPORTED_GAMES)))\
 	((forceRevertGUI, (ALL_SUPPORTED_GAMES)))\
 	((forceDoubleRevertGUI, (Halo2, Halo3, Halo3ODST, HaloReach, Halo4)))\

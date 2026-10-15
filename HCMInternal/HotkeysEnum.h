@@ -125,7 +125,9 @@ h2pTick30Hotkey, \
 h2pCombosHotkey, \
 h2pNoFallDeathsHotkey, \
 h2pArmHotkey, \
-h2pFlyHotkey
+h2pFlyHotkey, \
+spotSaveHotkey, \
+spotBackHotkey
 
 #define ALL_REBINDABLE_HOTKEYS ALL_EVENTONPRESS_HOTKEYS, NOEVENT_HOTKEYS, SKULL_HOTKEYS, H2P_HOTKEYS
 

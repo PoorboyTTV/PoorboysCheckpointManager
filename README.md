@@ -12,8 +12,12 @@ Made for MCC 1.3528 on Steam.
 
 To watch the others, **Fly** (Halo 2 Physics section) flies your player where you look, through walls: the others see you. **Free Camera** (Camera section) flies only your view, unseen.
 
+To try a jump again, **Save spot** and **Back to spot** (Save Management, above Force Checkpoint) put you back where you saved: the place, your speed, crouch, which way you look and Halo 2's armed state. Only your own player moves, nothing is rolled back.
+
 ## Playing online
 Custom games with friends who also have anti-cheat off. Everyone who wants Halo 2 physics runs the manager themselves: it drives only that player's own character. Turn **30 tick off** online (the game's 60 for everyone). Co-op campaign and Firefight run in lockstep, so a physics mod on one machine can knock them out of sync: stick to multiplayer custom games. So far tested with two players.
+
+For jumping online use **Save spot / Back to spot**. **Force Revert** still works online, but it rolls the whole game back on your machine only: an object that was destroyed or respawned since your checkpoint (a crate, a fusion coil) comes back pointing at network data that is gone, and the game can crash. Use it for object setups, knowing that.
 
 ## Credits
 * **Poorboy**: Poorboys Checkpoint Manager and its Halo 2 physics for Halo 3 and ODST: Halo 2's superbounces, movement and jump, button combos, solid objects (riding lifts, pushing crates), and the barrier, tick-rate and falling-death switches.
@@ -28,6 +32,9 @@ A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every swi
 * Halo 2's button combos
 * Falling deaths on / off
 * Live status: armed or not, speed against the 5.45 a step has to pass
+* Fly: your player flies where you look (others see it)
+
+And in **Save Management**, above Force Checkpoint: **Save spot** / **Back to spot** (Halo 3 and ODST, with Halo 2 physics on or off), bindable to a key or a controller button.
 
 It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.
 

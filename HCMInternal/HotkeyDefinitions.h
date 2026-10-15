@@ -518,6 +518,15 @@ private:
 		mSettings->h2pFlyHotkeyEvent,
 		vsk{}),
 
+		// Save spot / Back to spot (Save Management): unbound like the two above
+		initEventOnPressHotkey(spotSaveHotkey,
+		mSettings->spotSaveEvent,
+		vsk{}),
+
+		initEventOnPressHotkey(spotBackHotkey,
+		mSettings->spotBackEvent,
+		vsk{}),
+
 
 
 		

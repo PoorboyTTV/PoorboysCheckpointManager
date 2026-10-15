@@ -30,13 +30,22 @@ struct H3sbStatus {
     char map[32];           // the loaded map, e.g. "040_voi"
     int32_t flying;         // fly is moving the player (h3sb_fly.txt); added after map: a host with the shorter struct
                             // still gets everything up to map
+    int32_t spot;           // 1 = a spot is saved on the map that is loaded (h3sb_spot)
+    int32_t spot_armed;     // the Halo 2 body was armed when it was saved (it is armed again there)
+    float spot_pos[3];
 };
 
 // h3sb_arm(): the armed state (level -3) on the next tick the Halo 2 body is driven, as if it had stood up inside
 // geometry. A sleeping body is woken first. 1 = taken, 0 = no Halo 2 body right now (mode 0, no game, in a vehicle).
 //     typedef int (*H3sbArmFn)();  GetProcAddress(h3sb, "h3sb_arm")
+// h3sb_spot(what): 1 = save where this machine's player is (position, velocity, crouch and the Halo 2 body's armed
+// state), 2 = go back there. Taken on the next tick the player is on foot, within 3 seconds; any mode, flying too. Only
+// this player moves (nothing is rolled back), so it is safe online. 1 = queued, -1 = what is not 1 or 2. Whether there
+// is a spot to go back to: H3sbStatus.spot. The view direction is the host's to save and put back.
+//     typedef int (*H3sbSpotFn)(int);  GetProcAddress(h3sb, "h3sb_spot")
 
 #ifdef H3SB_EXPORTS
 extern "C" __declspec(dllexport) int h3sb_status(H3sbStatus *out);
 extern "C" __declspec(dllexport) int h3sb_arm();
+extern "C" __declspec(dllexport) int h3sb_spot(int what);
 #endif

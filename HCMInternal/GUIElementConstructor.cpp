@@ -310,7 +310,9 @@ private:
 			case GUIElementEnum::saveManagementHeadingGUI:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
 					(game, ToolTipCollection("Features for managing your checkpoints (savestates)"), "Save Management", headerChildElements
-						{ 
+						{
+							createNestedElement(GUIElementEnum::spotSaveGUI),
+							createNestedElement(GUIElementEnum::spotBackGUI),
 							createNestedElement(GUIElementEnum::forceCheckpointGUI),
 							createNestedElement(GUIElementEnum::forceRevertGUI),
 							createNestedElement(GUIElementEnum::forceDoubleRevertGUI),
@@ -329,6 +331,15 @@ private:
 							createNestedElement(GUIElementEnum::forceMissionRestartGUI),
 							
 						}));
+
+				// ---- Poorboys Checkpoint Manager: Save spot / Back to spot (Halo2Physics.cpp, the mod's h3sb_spot) ----
+				case GUIElementEnum::spotSaveGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>
+						(game, ToolTipCollection("Saves where you are: the place, your speed, crouch, which way you look and Halo 2's armed state. Back to spot puts you there again. Unlike a revert it moves only your own player and rolls nothing else back, so it is made for multiplayer jumping (online too). Works with Halo 2 physics on or off. Bind it with the .. button"), RebindableHotkeyEnum::spotSaveHotkey, "Save spot", settings->spotSaveEvent));
+
+				case GUIElementEnum::spotBackGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>
+						(game, ToolTipCollection("Puts you back at the saved spot, looking the same way, at the same speed, armed again if you were. Others online see you there. Objects stay where they are: for crates and the like use Force Checkpoint / Force Revert. Bind it with the .. button"), RebindableHotkeyEnum::spotBackHotkey, "Back to spot", settings->spotBackEvent));
 
 				case GUIElementEnum::forceCheckpointGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>

@@ -5,6 +5,8 @@
 #include "DirPathContainer.h"
 #include "RuntimeExceptionHandler.h"
 #include "IMCCStateHook.h"
+#include "IMakeOrGetCheat.h"
+#include "GetPlayerViewAngle.h"
 #include <filesystem>
 #include <fstream>
 
@@ -30,6 +32,7 @@ namespace
 		PROCESS_INFORMATION mLive{}, mWorld{};      // helper windows started from here
 		std::string mLastError;
 		bool mSaidPhysics = false, mSaidFly = false; // what the message log was last told (both games' instances call apply)
+		bool mSpotInUse = false;                    // Save spot was pressed: the mod stays loaded for it (observe mode when nothing else is on)
 
 		void writeSwitch(const wchar_t* name, int value)
 		{
@@ -113,7 +116,7 @@ namespace
 		{
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return "";
-			if (!o.physics && !o.fly)
+			if (!o.physics && !o.fly && !mSpotInUse)
 			{
 				if (loaded() && !mUnloadAsked)
 				{
@@ -132,7 +135,7 @@ namespace
 				if (loaded()) throw HCMRuntimeException(fail("Halo 2 physics: the mod did not unload; switch it on again in a moment"));
 			}
 			mUnloadAsked = false;
-			// fly alone (physics off): the mod in observe mode with the game's own barriers, tick rate, melee and falls
+			// fly or the spot alone (physics off): the mod in observe mode with the game's own barriers, tick rate, melee and falls
 			writeSwitch(L"h3sb_tick.txt", o.physics && o.tick30 ? 30 : 60);
 			writeSwitch(L"h3sb_barriers.txt", o.physics ? std::clamp(o.barriers, 0, 3) : 0);
 			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
@@ -211,6 +214,26 @@ namespace
 			return ok;
 		}
 
+		// from the first Save spot on the mod stays loaded for the spot
+		void useSpot()
+		{
+			std::scoped_lock lock(mMutex);
+			mSpotInUse = true;
+		}
+
+		// Save spot (1) / Back to spot (2): 1 queued for the next tick the player is on foot, 0 the mod refused it,
+		// -1 the mod is not loaded
+		int spot(int what)
+		{
+			if (mUnloadAsked) return -1;
+			HMODULE pinned = nullptr;
+			if (!GetModuleHandleExW(0, L"h3sb.dll", &pinned) || !pinned) return -1;
+			int ok = 0;
+			if (auto fn = (int (*)(int))GetProcAddress(pinned, "h3sb_spot")) ok = fn(what);
+			FreeLibrary(pinned);
+			return ok == 1 ? 1 : 0;
+		}
+
 		std::string lastError()
 		{
 			std::scoped_lock lock(mMutex);
@@ -238,6 +261,10 @@ private:
 	ScopedCallback<eventpp::CallbackList<void(float&)>> mFlySpeedCallback;
 	ScopedCallback<eventpp::CallbackList<void(int&)>> mBarriersCallback;
 	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mWorldLinesCallback, mCloseHelpersCallback;
+	ScopedCallback<ActionEvent> mSpotSaveCallback, mSpotBackCallback;
+	// the view direction goes with the spot: the mod keeps the player's place, speed and armed state, this the camera
+	std::weak_ptr<GetPlayerViewAngle> mViewAngleWeak;
+	std::optional<SimpleMath::Vector2> mSpotView;
 
 	H3sbOptions options()
 	{
@@ -279,6 +306,61 @@ private:
 			: "Not armed: turn Halo 2 physics on first");
 	}
 
+	// Save spot: works with Halo 2 physics off too (the mod is loaded for it in observe mode)
+	void onSpotSave()
+	{
+		auto mcc = mccStateHookWeak.lock();
+		if (!mcc || !mcc->isGameCurrentlyPlaying(mGame)) return;
+		guarded([this]() {
+			host().useSpot();
+			if (!host().isLoaded()) say(host().apply(options()));      // throws when it cannot be loaded
+			H3sbStatus s{};
+			s.size = (int32_t)sizeof(H3sbStatus);
+			const bool armed = host().readStatus(&s) == 1 && s.have_body && s.armed;
+			if (host().spot(1) != 1)
+			{
+				say("Spot not saved: the Halo 2 physics mod is not running");
+				return;
+			}
+			mSpotView.reset();
+			if (auto view = mViewAngleWeak.lock())
+			{
+				try
+				{
+					mSpotView = view->getPlayerViewAngle();
+				}
+				catch (HCMRuntimeException ex)
+				{
+					PLOG_ERROR << "Save spot: the view direction could not be read, the spot keeps the place only: " << ex.what();
+				}
+			}
+			say(armed ? "Spot saved (armed)" : "Spot saved");
+		});
+	}
+
+	void onSpotBack()
+	{
+		auto mcc = mccStateHookWeak.lock();
+		if (!mcc || !mcc->isGameCurrentlyPlaying(mGame)) return;
+		guarded([this]() {
+			H3sbStatus s{};
+			s.size = (int32_t)sizeof(H3sbStatus);
+			if (host().readStatus(&s) != 1 || s.size < (int32_t)sizeof(H3sbStatus) || !s.spot)
+			{
+				say("No spot saved on this map yet: Save spot first");
+				return;
+			}
+			if (host().spot(2) != 1)
+			{
+				say("Back to spot: the Halo 2 physics mod is not running");
+				return;
+			}
+			if (mSpotView)
+				if (auto view = mViewAngleWeak.lock()) view->setPlayerViewAngle(*mSpotView);
+			say(s.spot_armed ? "Back to spot (armed)" : "Back to spot");
+		});
+	}
+
 public:
 	Halo2PhysicsImpl(GameState game, IDIContainer& dicon) :
 		mGame(game),
@@ -298,9 +380,24 @@ public:
 			guarded([this]() { host().openMapWindow(mSettingsWeak.lock()->h2pCalloutsToggle->GetValue()); });
 			}),
 		mWorldLinesCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenWorldLinesEvent, [this]() { guarded([]() { host().openWorldLines(); }); }),
-		mCloseHelpersCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pCloseHelpersEvent, [this]() { host().closeHelpers(); })
+		mCloseHelpersCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pCloseHelpersEvent, [this]() { host().closeHelpers(); }),
+		mSpotSaveCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->spotSaveEvent, [this]() { onSpotSave(); }),
+		mSpotBackCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->spotBackEvent, [this]() { onSpotBack(); })
 	{
 		host().setDir(dicon.Resolve<DirPathContainer>().lock()->dirPath);
+		// HCM's own view-angle reader: without it the spot still works, it just does not turn the camera back
+		try
+		{
+			mViewAngleWeak = resolveDependentCheat(GetPlayerViewAngle);
+		}
+		catch (HCMInitException ex)
+		{
+			PLOG_ERROR << "Save spot: no view angle for this game, Back to spot keeps the camera where it is: " << ex.what();
+		}
+		catch (std::bad_weak_ptr)
+		{
+			PLOG_ERROR << "Save spot: no view angle for this game (bad_weak_ptr)";
+		}
 		// switched on last time PCM ran: on again (a missing dll is reported, it does not stop PCM)
 		try
 		{

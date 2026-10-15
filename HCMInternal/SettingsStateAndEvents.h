@@ -607,6 +607,8 @@ public:
 	std::shared_ptr<ActionEvent> h2pOpenMapWindowEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pOpenWorldLinesEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pCloseHelpersEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> spotSaveEvent = std::make_shared<ActionEvent>();        // button and hotkey: Save spot
+	std::shared_ptr<ActionEvent> spotBackEvent = std::make_shared<ActionEvent>();        // button and hotkey: Back to spot
 
 	std::shared_ptr<BinarySetting<bool>> naturalCheckpointDisable = std::make_shared<BinarySetting<bool>>
 		(

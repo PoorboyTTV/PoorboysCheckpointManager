@@ -153,6 +153,12 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 	{GUIElementEnum::h2pCloseHelpersGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
+	{GUIElementEnum::spotSaveGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::spotBackGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
 	{GUIElementEnum::dumpCoreForcesSave,
 			{OptionalCheatEnum::DumpCore, OptionalCheatEnum::ForceCoreSave}
 	},
