@@ -39,6 +39,7 @@ A **Poorboy's Mods** section at the top of the in-game overlay (Halo 3 and ODST)
 * Live status: armed or not, speed against the 5.45 a step has to pass
 * Fly: your player flies where you look (others see it)
 * **Save spot** / **Back to spot** (with Halo 2 physics on or off; you face the way you looked when you saved)
+* **Poorboy's logo** in the top-left corner of Halo 3 and ODST games, left of the grenade counts, so a clip shows it was played with Poorboy's mods. Always on (Halo Checkpoint Manager's own watermark can be hidden; the logo cannot). Like the rest of the overlay, it stays out of OBS when Halo Checkpoint Manager's OBS bypass is on.
 * **Bottomless Clip**: your own magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind to throw it); reserve ammo still counts, and plasma weapons still overheat. (In Halo CE and Halo 2 it is Halo Checkpoint Manager's own, under Useful Cheats.)
 
 It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.

@@ -489,6 +489,9 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClInclude Include="Halo2Physics.h" />
     <ClInclude Include="GUIH2Physics.h" />
     <ClInclude Include="PCMTheme.h" />
+    <ClInclude Include="PoorboyLogo.h" />
+    <ClInclude Include="PoorboyLogoData.h" />
+    <ClInclude Include="PoorboyLogoArt.h" />
     <ClInclude Include="h3sb_api.h" />
     <ClInclude Include="NullSmoother.h" />
     <ClInclude Include="ObjectTypes.h" />
@@ -763,6 +766,7 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClCompile Include="NaturalCheckpointDisable.cpp" />
     <ClCompile Include="Halo2Physics.cpp" />
     <ClCompile Include="PCMTheme.cpp" />
+    <ClCompile Include="PoorboyLogo.cpp" />
     <ClCompile Include="PauseGame.cpp" />
     <ClCompile Include="ProggyVectorRegularFont.cpp" />
     <ClCompile Include="BinarySetting.cpp" />

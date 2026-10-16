@@ -484,6 +484,15 @@
     <ClInclude Include="PCMTheme.h">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClInclude>
+    <ClInclude Include="PoorboyLogo.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
+    <ClInclude Include="PoorboyLogoData.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
+    <ClInclude Include="PoorboyLogoArt.h">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClInclude>
     <ClInclude Include="InfiniteAmmo.h">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClInclude>
@@ -1270,6 +1279,9 @@
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClCompile>
     <ClCompile Include="PCMTheme.cpp">
+      <Filter>Services\OptionalCheats\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="PoorboyLogo.cpp">
       <Filter>Services\OptionalCheats\Implementations</Filter>
     </ClCompile>
     <ClCompile Include="BottomlessClip.cpp">

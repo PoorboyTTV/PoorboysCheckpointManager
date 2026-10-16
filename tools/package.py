@@ -62,6 +62,8 @@ Made for MCC 1.3528 on Steam.
    "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
    Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
 
+Poorboy's logo sits in the top-left corner of Halo 3 and ODST games, left of the grenade counts: clips show
+the game was played with Poorboy's mods.
 Style: Control > Style changes the overlay's look.
 Problems: send the Logs folder (and any HCM_CRASHDUMP file) to Poorboy - not to Burnt.
 """

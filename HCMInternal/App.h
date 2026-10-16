@@ -5,6 +5,7 @@
 #include "ModuleHookManager.h"
 #include "D3D11Hook.h"
 #include "ImGuiManager.h"
+#include "PoorboyLogo.h"
 #include "PointerDataStore.h"
 #include "PointerDataParser.h"
 #include "PointerDataGetter.h"
@@ -161,6 +162,7 @@ public:
             // set up main gui
             auto HCMGUI = std::make_shared<HCMInternalGUI>(mccStateHook, guistore, hkr, imm->MidgroundRenderEvent, std::reinterpret_pointer_cast<IMCCStateHook>(mccStateHook)->getMCCStateChangedEvent(), control, settings, (bool*)isCursorShowingResolved); PLOGV << "HCMGUI init";// main gui. Mostly just a canvas for rendering a collection of IGUIElements that will get constructed a bit below.
             mes->setAnchorPoint(HCMGUI);
+            auto poorboyLogo = std::make_shared<PoorboyLogo>(mccStateHook, imm->ForegroundDirectXRenderEvent); PLOGV << "poorboyLogo init"; // Poorboy's logo left of the grenade counts (Halo 3, ODST)
 
             auto hb = std::make_shared<HeartbeatTimer>(sharedMem, settings); PLOGV << "hb init";
 
