@@ -553,7 +553,7 @@ private:
 
 				case GUIElementEnum::bottomlessClipGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("The player no longer has to reload"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle
+						(game, ToolTipCollection("The player no longer has to reload.\nHalo 3 / ODST: your magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind)"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle
 						));
 
 				case GUIElementEnum::aiFreezeGUI:

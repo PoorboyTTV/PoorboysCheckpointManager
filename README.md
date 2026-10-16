@@ -38,7 +38,7 @@ A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every swi
 
 And in **Save Management**, above Force Checkpoint: **Save spot** / **Back to spot** (Halo 3 and ODST, with Halo 2 physics on or off; you face the way you looked when you saved), bindable to a key or a controller button.
 
-**Bottomless Clip** (Useful Cheats) now also works in Halo 3 and ODST: your own magazine never empties and plasma batteries don't drain; reserve ammo and grenades still count, and plasma weapons still overheat.
+**Bottomless Clip** (Useful Cheats) now also works in Halo 3 and ODST: your own magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind to throw it); reserve ammo still counts, and plasma weapons still overheat.
 
 It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.
 

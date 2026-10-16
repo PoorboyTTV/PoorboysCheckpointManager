@@ -10,7 +10,7 @@
 //     h3sb_combos.txt    1 Halo 2's button combos, 0 the game's own
 //     h3sb_falls.txt     1 no falling damage or falling deaths, 0 the game's own
 //     h3sb_fly.txt       "1 <speed>" fly (any mode, 0 too), speed in world units a second; "0" or no file = off
-//     h3sb_clip.txt      1 bottomless clip for this machine's player (any mode, 0 too), 0 the game's own
+//     h3sb_clip.txt      1 bottomless clip and grenades for this machine's player (any mode, 0 too), 0 the game's own
 #pragma once
 
 #include <stdint.h>

@@ -46,8 +46,9 @@ Made for MCC 1.3528 on Steam.
           (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
      Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
-   Useful Cheats: "Bottomless Clip" works in Halo 3 and ODST too (your magazine never empties; reserve ammo and
-   grenades still count). Reload first: a part-empty magazine stays as it is.
+   Useful Cheats: "Bottomless Clip" works in Halo 3 and ODST too (your magazine never empties and your grenades
+   never run out; reserve ammo still counts). Reload first: a part-empty magazine stays as it is. Grenades: you
+   need at least one of a kind, then throwing it never uses it up.
    Save Management: "Save spot" and "Back to spot" put you back where you saved (place, speed, view, armed state)
    without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
