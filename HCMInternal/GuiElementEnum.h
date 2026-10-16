@@ -33,11 +33,11 @@
 	((spotSaveGUI, (Halo3, Halo3ODST)))\
 	((spotBackGUI, (Halo3, Halo3ODST)))\
 	((h2pBottomlessClipGUI, (Halo3, Halo3ODST)))\
-	((h2pHelpersSubheading, (Halo3, Halo3ODST)))\
+	((h2pHelpersSubheading, (Halo3, Halo3ODST, HaloReach)))\
 		((h2pCalloutsToggleGUI, (Halo3, Halo3ODST)))\
 		((h2pOpenMapWindowGUI, (Halo3, Halo3ODST)))\
-		((h2pOpenWorldLinesGUI, (Halo3, Halo3ODST)))\
-		((h2pCloseHelpersGUI, (Halo3, Halo3ODST)))\
+		((h2pOpenWorldLinesGUI, (Halo3, Halo3ODST, HaloReach)))\
+		((h2pCloseHelpersGUI, (Halo3, Halo3ODST, HaloReach)))\
 ((controlHeadingGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((pcmThemeGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((toggleGUIHotkeyGUI, (ALL_GAMES_AND_MAINMENU)))\
