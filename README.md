@@ -17,7 +17,7 @@ To watch the others, **Fly** (Halo 2 Physics section) flies your player where yo
 To try a jump again, **Save spot** and **Back to spot** (Save Management, above Force Checkpoint) put you back where you saved: the place, your speed, crouch, which way you look and Halo 2's armed state. Only your own player moves, nothing is rolled back.
 
 ## Playing online
-Custom games with friends who also have anti-cheat off. Everyone who wants Halo 2 physics runs the manager themselves: it drives only that player's own character. Turn **30 tick off** online (the game's 60 for everyone). Co-op campaign and Firefight run in lockstep, so a physics mod on one machine can knock them out of sync: stick to multiplayer custom games. So far tested with two players.
+Custom games with friends who also have anti-cheat off. Everyone who wants Halo 2 physics runs the manager themselves: it drives only that player's own character. Turn **30 tick off** online (the game's 60 for everyone; that also puts the Halo 2 physics at 60 ticks). Co-op campaign and Firefight run in lockstep, so a physics mod on one machine can knock them out of sync: stick to multiplayer custom games. So far tested with two players.
 
 For jumping online use **Save spot / Back to spot**. **Force Revert** still works online, but it rolls the whole game back on your machine only: an object that was destroyed or respawned since your checkpoint (a crate, a fusion coil) comes back pointing at network data that is gone, and the game can crash. Use it for object setups, knowing that.
 
@@ -30,7 +30,7 @@ For jumping online use **Save spot / Back to spot**. **Force Revert** still work
 A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every switch with a rebindable hotkey:
 * Halo 2 physics on / off (Halo 2's player body, movement and jump; superbounces work as in Halo 2)
 * Barriers: the game's own, soft ceilings off, out-of-bounds kill off, kill volumes off
-* 30 tick (Halo 2's rate) or MCC's 60
+* 30 tick on / off, any time: the game and the Halo 2 physics together at 30 (Xbox Halo 2: superbounces, big landings on slopes stop on ledges) or 60 (PC Halo 2: you slide down slopes, no superbounces from ordinary heights)
 * Halo 2's button combos, including the plasma pistol double grenade (the pistol's overheat cuts a throw short)
 * Falling deaths on / off
 * Live status: armed or not, speed against the 5.45 a step has to pass

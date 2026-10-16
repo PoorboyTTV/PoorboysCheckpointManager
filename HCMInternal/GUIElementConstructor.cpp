@@ -166,7 +166,7 @@ private:
 
 				case GUIElementEnum::h2pTick30ToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("30 ticks a second, Halo 2's rate: every game tick is one Halo 2 step. Off: MCC's 60"), RebindableHotkeyEnum::h2pTick30Hotkey, "30 tick", settings->h2pTick30Toggle));
+						(game, ToolTipCollection("Switches the game and the Halo 2 physics between 30 and 60 ticks a second, any time (mid-game too). On: Halo 2 at 30 ticks (Xbox): superbounces, big landings on slopes stop on ledges. Off: Halo 2 at 60 ticks (PC): you slide down slopes, but superbounces from ordinary heights don't happen"), RebindableHotkeyEnum::h2pTick30Hotkey, "30 tick", settings->h2pTick30Toggle));
 
 				case GUIElementEnum::h2pCombosToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>

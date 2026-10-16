@@ -40,7 +40,9 @@ Made for MCC 1.3528 on Steam.
 4. Halo 2 Physics, at the top of the overlay: tick "Halo 2 physics" or press F6. Then close the overlay with ` :
    the game is paused while the overlay is open, and the physics takes hold once the game runs.
      F7   barriers (the game's own / soft ceilings off / + out-of-bounds kill off / + kill volumes off)
-     F9   30 tick (Halo 2's rate)        F10  Halo 2 button combos        F11  no falling deaths
+     F9   30 / 60 tick, any time: game and Halo 2 physics together (30 = Xbox Halo 2 with superbounces,
+          60 = PC Halo 2: slides down slopes, no superbounces from ordinary heights)
+     F10  Halo 2 button combos           F11  no falling deaths
           (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
      Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
