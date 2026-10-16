@@ -123,10 +123,11 @@ private:
 			std::optional<std::shared_ptr<IGUIElement>> x;
 			switch (guielementenum)
 			{
-			// ---- Poorboys Checkpoint Manager: Halo 2 physics (Halo2Physics.cpp, GUIH2Physics.h) ----
+			// ---- Poorboys Checkpoint Manager: every one of Poorboy's mods, together at the top, apart from Halo Checkpoint
+			//      Manager's own sections (Halo2Physics.cpp, GUIH2Physics.h, BottomlessClip.cpp) ----
 			case GUIElementEnum::halo2PhysicsHeadingGUI:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
-					(game, ToolTipCollection("Halo 2's physics for Halo 3 and ODST, by Poorboy: Halo 2's player body, movement, jump and superbounces"), "Halo 2 Physics", headerChildElements
+					(game, ToolTipCollection("Poorboy's mods for Halo 3 and ODST, kept apart from Halo Checkpoint Manager's own features below: Halo 2's physics (player body, movement, jump, superbounces), button combos and lunges, fly, save spot, bottomless clip"), "Poorboy's Mods", headerChildElements
 						{
 						createNestedElement(GUIElementEnum::h2pStatusGUI),
 						createNestedElement(GUIElementEnum::h2pPhysicsToggleGUI),
@@ -137,6 +138,9 @@ private:
 						createNestedElement(GUIElementEnum::h2pTick30ToggleGUI),
 						createNestedElement(GUIElementEnum::h2pCombosToggleGUI),
 						createNestedElement(GUIElementEnum::h2pNoFallDeathsToggleGUI),
+						createNestedElement(GUIElementEnum::spotSaveGUI),
+						createNestedElement(GUIElementEnum::spotBackGUI),
+						createNestedElement(GUIElementEnum::h2pBottomlessClipGUI),
 						createNestedElement(GUIElementEnum::h2pHelpersSubheading),
 						}));
 
@@ -170,7 +174,11 @@ private:
 
 				case GUIElementEnum::h2pCombosToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("Halo 2's button combos: melee cancels (BXR, BXB, double shot) and melee lock, and the plasma pistol double grenade (charged shot, then about a second later grenade, grenade: the pistol's overheat cuts the first throw short)"), RebindableHotkeyEnum::h2pCombosHotkey, "Halo 2 button combos", settings->h2pCombosToggle));
+						(game, ToolTipCollection("Halo 2's button combos: melee cancels (BXR, BXB, double shot) and melee lock; X during a weapon switch swaps at once (YX); the plasma pistol double grenade (charged shot, then about a second later grenade, grenade).\nWith Halo 2 physics on, Halo 2's lunges too: a melee or sword lunge flies straight at the target with no gravity and keeps going if you cancel it (butterflying: spam melee + reload at an enemy standing on your head while he jumps); sword flying: rifle in hand locked on someone, Y, X, then RT at once: the sword lunges at what the rifle had locked"), RebindableHotkeyEnum::h2pCombosHotkey, "Halo 2 button combos", settings->h2pCombosToggle));
+
+				case GUIElementEnum::h2pBottomlessClipGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Your magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind). Reserve ammo still counts and plasma weapons still overheat. Reload first: a part-empty magazine stays as it is"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle));
 
 				case GUIElementEnum::h2pNoFallDeathsToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
@@ -311,8 +319,6 @@ private:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
 					(game, ToolTipCollection("Features for managing your checkpoints (savestates)"), "Save Management", headerChildElements
 						{
-							createNestedElement(GUIElementEnum::spotSaveGUI),
-							createNestedElement(GUIElementEnum::spotBackGUI),
 							createNestedElement(GUIElementEnum::forceCheckpointGUI),
 							createNestedElement(GUIElementEnum::forceRevertGUI),
 							createNestedElement(GUIElementEnum::forceDoubleRevertGUI),
@@ -553,7 +559,7 @@ private:
 
 				case GUIElementEnum::bottomlessClipGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("The player no longer has to reload.\nHalo 3 / ODST: your magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind)"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle
+						(game, ToolTipCollection("The player no longer has to reload"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle
 						));
 
 				case GUIElementEnum::aiFreezeGUI:

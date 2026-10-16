@@ -4,7 +4,7 @@
 #include "Halo2Physics.h"
 #include "PCMTheme.h"
 
-// Poorboys Checkpoint Manager: the widgets HCM's own ones do not cover (the Halo 2 Physics section, the style picker).
+// Poorboys Checkpoint Manager: the widgets HCM's own ones do not cover (the Poorboy's Mods section, the style picker).
 
 // The live line from the mod: armed or not, the body's speed against the 5.45 a step has to pass (bar), the map.
 class GUIH2PhysicsStatus : public IGUIElement

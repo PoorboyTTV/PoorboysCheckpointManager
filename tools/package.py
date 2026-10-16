@@ -37,23 +37,26 @@ Made for MCC 1.3528 on Steam.
 2. Run PoorboysCheckpointManager.exe from this folder and say yes to the administrator prompt.
    Keep the folder together: everything in it is used. Windows may warn about an unknown publisher (it is not signed).
 3. In MCC start a Halo 3 or ODST game. The overlay opens and closes with ` (the key left of 1).
-4. Halo 2 Physics, at the top of the overlay: tick "Halo 2 physics" or press F6. Then close the overlay with ` :
+4. Poorboy's Mods, the first section of the overlay (everything Poorboy added is there, apart from Halo Checkpoint
+   Manager's own sections below it): tick "Halo 2 physics" or press F6. Then close the overlay with ` :
    the game is paused while the overlay is open, and the physics takes hold once the game runs.
      F7   barriers (the game's own / soft ceilings off / + out-of-bounds kill off / + kill volumes off)
      F9   30 / 60 tick, any time: game and Halo 2 physics together (30 = Xbox Halo 2 with superbounces,
           60 = PC Halo 2: slides down slopes, no superbounces from ordinary heights)
      F10  Halo 2 button combos           F11  no falling deaths
-          (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade)
+          (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade;
+          X during a weapon switch swaps at once; with Halo 2 physics on, Halo 2's lunges: butterflying, and sword
+          flying = rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
      Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
-   Useful Cheats: "Bottomless Clip" works in Halo 3 and ODST too (your magazine never empties and your grenades
+   "Bottomless Clip" (Poorboy's Mods) in Halo 3 and ODST: your magazine never empties and your grenades
    never run out; reserve ammo still counts). Reload first: a part-empty magazine stays as it is. Grenades: you
    need at least one of a kind, then throwing it never uses it up.
-   Save Management: "Save spot" and "Back to spot" put you back where you saved (place, speed, view, armed state)
+   "Save spot" and "Back to spot" (Poorboy's Mods) put you back where you saved (place, speed, view, armed state)
    without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
-6. Helper windows (in the Halo 2 Physics section): the map window with call-outs, and lines drawn in the world.
+6. Helper windows (in Poorboy's Mods): the map window with call-outs, and lines drawn in the world.
    "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
    Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
 

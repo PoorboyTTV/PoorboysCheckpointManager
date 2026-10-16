@@ -12,9 +12,11 @@ Made for MCC 1.3528 on Steam.
 
 **Antivirus:** some antivirus programs wrongly flag `h3sb\helper\h3sb_helper.exe` (the map window and the lines in the world; it is a Python program packed into an exe, and those get false alarms) and quarantine it. The manager then says the helper is missing. Restore it in Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine) and allow it, or unzip again.
 
-To watch the others, **Fly** (Halo 2 Physics section) flies your player where you look, through walls: the others see you. **Free Camera** (Camera section) flies only your view, unseen.
+Everything Poorboy added is in **Poorboy's Mods**, the first section of the overlay (Halo 3 and ODST), apart from Halo Checkpoint Manager's own sections below it.
 
-To try a jump again, **Save spot** and **Back to spot** (Save Management, above Force Checkpoint) put you back where you saved: the place, your speed, crouch, which way you look and Halo 2's armed state. Only your own player moves, nothing is rolled back.
+To watch the others, **Fly** (Poorboy's Mods) flies your player where you look, through walls: the others see you. **Free Camera** (Camera section) flies only your view, unseen.
+
+To try a jump again, **Save spot** and **Back to spot** (Poorboy's Mods) put you back where you saved: the place, your speed, crouch, which way you look and Halo 2's armed state. Only your own player moves, nothing is rolled back.
 
 ## Playing online
 Custom games with friends who also have anti-cheat off. Everyone who wants Halo 2 physics runs the manager themselves: it drives only that player's own character. Turn **30 tick off** online (the game's 60 for everyone; that also puts the Halo 2 physics at 60 ticks). Co-op campaign and Firefight run in lockstep, so a physics mod on one machine can knock them out of sync: stick to multiplayer custom games. So far tested with two players.
@@ -27,18 +29,17 @@ For jumping online use **Save spot / Back to spot**. **Force Revert** still work
 * Third-party libraries: see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
 ## What it adds to Halo Checkpoint Manager
-A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every switch with a rebindable hotkey:
+A **Poorboy's Mods** section at the top of the in-game overlay (Halo 3 and ODST), kept apart from Halo Checkpoint Manager's own features, every switch with a rebindable hotkey:
 * Halo 2 physics on / off (Halo 2's player body, movement and jump; superbounces work as in Halo 2)
 * Barriers: the game's own, soft ceilings off, out-of-bounds kill off, kill volumes off
 * 30 tick on / off, any time: the game and the Halo 2 physics together at 30 (Xbox Halo 2: superbounces, big landings on slopes stop on ledges) or 60 (PC Halo 2: you slide down slopes, no superbounces from ordinary heights)
-* Halo 2's button combos, including the plasma pistol double grenade (the pistol's overheat cuts a throw short)
+* Halo 2's button combos, including the plasma pistol double grenade (the pistol's overheat cuts a throw short) and X during a weapon switch swapping at once
+* Halo 2's lunges (with Halo 2 physics on): a melee or sword lunge flies straight at the target with no gravity and keeps going when you cancel the attack, so **butterflying** works (spam melee + reload at an enemy standing on your head while he jumps: you both climb), and **sword flying** (rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked)
 * Falling deaths on / off
 * Live status: armed or not, speed against the 5.45 a step has to pass
 * Fly: your player flies where you look (others see it)
-
-And in **Save Management**, above Force Checkpoint: **Save spot** / **Back to spot** (Halo 3 and ODST, with Halo 2 physics on or off; you face the way you looked when you saved), bindable to a key or a controller button.
-
-**Bottomless Clip** (Useful Cheats) now also works in Halo 3 and ODST: your own magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind to throw it); reserve ammo still counts, and plasma weapons still overheat.
+* **Save spot** / **Back to spot** (with Halo 2 physics on or off; you face the way you looked when you saved)
+* **Bottomless Clip**: your own magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind to throw it); reserve ammo still counts, and plasma weapons still overheat. (In Halo CE and Halo 2 it is Halo Checkpoint Manager's own, under Useful Cheats.)
 
 It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.
 

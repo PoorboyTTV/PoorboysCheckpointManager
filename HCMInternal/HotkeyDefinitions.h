@@ -518,7 +518,7 @@ private:
 		mSettings->h2pFlyHotkeyEvent,
 		vsk{}),
 
-		// Save spot / Back to spot (Save Management): unbound like the two above
+		// Save spot / Back to spot (Poorboy's Mods): unbound like the two above
 		initEventOnPressHotkey(spotSaveHotkey,
 		mSettings->spotSaveEvent,
 		vsk{}),

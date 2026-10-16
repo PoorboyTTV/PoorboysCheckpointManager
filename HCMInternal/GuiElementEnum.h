@@ -30,6 +30,9 @@
 	((h2pTick30ToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pCombosToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pNoFallDeathsToggleGUI, (Halo3, Halo3ODST)))\
+	((spotSaveGUI, (Halo3, Halo3ODST)))\
+	((spotBackGUI, (Halo3, Halo3ODST)))\
+	((h2pBottomlessClipGUI, (Halo3, Halo3ODST)))\
 	((h2pHelpersSubheading, (Halo3, Halo3ODST)))\
 		((h2pCalloutsToggleGUI, (Halo3, Halo3ODST)))\
 		((h2pOpenMapWindowGUI, (Halo3, Halo3ODST)))\
@@ -54,8 +57,6 @@
 	((HideWatermarkGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((HideWatermarkIncludeMessagesGUI, (ALL_GAMES_AND_MAINMENU)))\
 ((saveManagementHeadingGUI, (ALL_SUPPORTED_GAMES)))\
-	((spotSaveGUI, (Halo3, Halo3ODST)))\
-	((spotBackGUI, (Halo3, Halo3ODST)))\
 	((forceCheckpointGUI, (ALL_SUPPORTED_GAMES)))\
 	((forceRevertGUI, (ALL_SUPPORTED_GAMES)))\
 	((forceDoubleRevertGUI, (Halo2, Halo3, Halo3ODST, HaloReach, Halo4)))\
@@ -94,7 +95,7 @@
 	((invulnerabilitySettingsSubheading, (ALL_SUPPORTED_GAMES)))\
 	((invulnNPCGUI, (ALL_SUPPORTED_GAMES)))\
 	((infiniteAmmoGUI, (Halo1, Halo2)))\
-	((bottomlessClipGUI, (Halo1, Halo2, Halo3, Halo3ODST)))\
+	((bottomlessClipGUI, (Halo1, Halo2)))\
 	((aiFreezeGUI, (ALL_SUPPORTED_GAMES)))\
 	((medusaGUI, (Halo1, Halo2)))\
 	((forceTeleportGUI, (ALL_SUPPORTED_GAMES)))\
