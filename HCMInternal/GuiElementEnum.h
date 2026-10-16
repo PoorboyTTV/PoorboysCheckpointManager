@@ -24,14 +24,14 @@
 	((h2pStatusGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pPhysicsToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pArmGUI, (Halo3, Halo3ODST, HaloReach)))\
-	((h2pFlyToggleGUI, (Halo3, Halo3ODST)))\
-	((h2pFlySpeedGUI, (Halo3, Halo3ODST)))\
-	((h2pBarriersGUI, (Halo3, Halo3ODST)))\
+	((h2pFlyToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pFlySpeedGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pBarriersGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pTick30ToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pCombosToggleGUI, (Halo3, Halo3ODST)))\
-	((h2pNoFallDeathsToggleGUI, (Halo3, Halo3ODST)))\
-	((spotSaveGUI, (Halo3, Halo3ODST)))\
-	((spotBackGUI, (Halo3, Halo3ODST)))\
+	((h2pNoFallDeathsToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((spotSaveGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((spotBackGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pBottomlessClipGUI, (Halo3, Halo3ODST)))\
 	((h2pHelpersSubheading, (Halo3, Halo3ODST, HaloReach)))\
 		((h2pCalloutsToggleGUI, (Halo3, Halo3ODST)))\

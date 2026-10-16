@@ -19,7 +19,7 @@ void PoorboyLogo::onRender(ID3D11Device* pDevice, SimpleMath::Vector2 screenSize
 	const MCCState& state = mccStateHook->getCurrentMCCState();
 	if (state.currentPlayState != PlayState::Ingame) return;
 	const GameState::Value game = state.currentGameState;
-	if (game != GameState::Value::Halo3 && game != GameState::Value::Halo3ODST) return;
+	if (game != GameState::Value::Halo3 && game != GameState::Value::Halo3ODST && game != GameState::Value::HaloReach) return;
 
 	const poorboy_logo::Rect at = poorboy_logo::place(screenSize.x, screenSize.y);
 	if (pDevice != mDevice || at.width != mWidth || at.height != mHeight)
