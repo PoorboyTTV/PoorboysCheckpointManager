@@ -20,14 +20,14 @@
 // A sequence of pairs, where the first element of a pair is the GUIElementEnum name, and the second element is a tuple of supported games for that guielement
 // Indentation is cosmetic but indicates hiearchy of elements
 #define RELEASEGUIELEMENTS_ANDSUPPORTEDGAMES1 \
-((halo2PhysicsHeadingGUI, (Halo3, Halo3ODST)))\
-	((h2pStatusGUI, (Halo3, Halo3ODST)))\
-	((h2pPhysicsToggleGUI, (Halo3, Halo3ODST)))\
-	((h2pArmGUI, (Halo3, Halo3ODST)))\
+((halo2PhysicsHeadingGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pStatusGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pPhysicsToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pArmGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pFlyToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pFlySpeedGUI, (Halo3, Halo3ODST)))\
 	((h2pBarriersGUI, (Halo3, Halo3ODST)))\
-	((h2pTick30ToggleGUI, (Halo3, Halo3ODST)))\
+	((h2pTick30ToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pCombosToggleGUI, (Halo3, Halo3ODST)))\
 	((h2pNoFallDeathsToggleGUI, (Halo3, Halo3ODST)))\
 	((spotSaveGUI, (Halo3, Halo3ODST)))\
