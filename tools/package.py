@@ -56,6 +56,8 @@ Made for MCC 1.3528 on Steam.
    without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
+   Online (custom games, everyone with anti-cheat off): everyone runs this same version, with the same 30 tick
+   setting as the host (on for superbounces).
 6. Helper windows (in Poorboy's Mods): the map window with call-outs, and lines drawn in the world.
    "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
    Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
