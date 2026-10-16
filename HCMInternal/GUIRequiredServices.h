@@ -3,7 +3,7 @@
 
 // A sequence of pairs, where the first element of a pair is the GUIElementEnum name, and the second element is a tuple of supported games for that GUIElementEnum
 #define TOPGUIELEMENTS_RELEASE \
-((halo2PhysicsHeadingGUI,(Halo3,Halo3ODST)))\
+((halo2PhysicsHeadingGUI,(Halo3,Halo3ODST,HaloReach)))\
 ((controlHeadingGUI,(ALL_GAMES_AND_MAINMENU)))\
 ((saveManagementHeadingGUI,(ALL_SUPPORTED_GAMES)))\
 ((cheatsHeadingGUI,(ALL_SUPPORTED_GAMES)))\
