@@ -3,7 +3,7 @@
 #include "IMCCStateHook.h"
 #include "DirectXRenderEvent.h"
 
-// Poorboys Checkpoint Manager: Poorboy's logo, drawn solid in Halo 3 and ODST games left of the grenade counts, so a clip
+// Poorboys Checkpoint Manager: Poorboy's logo, drawn see-through in Halo 3 and ODST games left of the grenade counts, so a clip
 // shows the game was played with Poorboy's mods. It is not a setting (Halo Checkpoint Manager's own watermark can be
 // hidden; this cannot). The overlay draws it, so it is in what MCC presents: recordings see it, unless Halo Checkpoint
 // Manager's OBS bypass keeps the whole overlay out of OBS.

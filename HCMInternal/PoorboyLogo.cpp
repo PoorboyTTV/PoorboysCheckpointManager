@@ -37,5 +37,6 @@ void PoorboyLogo::onRender(ID3D11Device* pDevice, SimpleMath::Vector2 screenSize
 		mHeight = at.height;
 		PLOG_INFO << "Poorboy logo: " << mWidth << " x " << mHeight << " for a " << screenSize.x << " x " << screenSize.y << " screen";
 	}
-	ImGui::GetBackgroundDrawList()->AddImage((ImTextureID)(uintptr_t)mView, ImVec2(at.x, at.y), ImVec2(at.x + mWidth, at.y + mHeight));
+	ImGui::GetBackgroundDrawList()->AddImage((ImTextureID)(uintptr_t)mView, ImVec2(at.x, at.y), ImVec2(at.x + mWidth, at.y + mHeight),
+		ImVec2(0, 0), ImVec2(1, 1), IM_COL32(255, 255, 255, poorboy_logo::kOpacity));
 }

@@ -13,6 +13,8 @@ namespace poorboy_logo
 	// where Halo 3's HUD leaves room left of the grenade counts, on a 1920 x 1080 screen: the logo 62 high, its top-left
 	// corner at (22, 54), just under the collapsed PCM bar and level with the grenade panel
 	constexpr float kLeft = 22.f, kTop = 54.f, kHeight = 62.f;
+	// see-through so it does not get in the way: 35% of the logo's own alpha (89 of 255), drawn as ImGui's tint
+	constexpr uint8_t kOpacity = 89;
 
 	struct Rect { float x, y; int width, height; };
 
