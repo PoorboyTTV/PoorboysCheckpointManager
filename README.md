@@ -10,6 +10,8 @@ Get the latest zip from the **Releases** page (on the right). Unzip it, keep the
 
 Made for MCC 1.3528 on Steam.
 
+**Antivirus:** some antivirus programs wrongly flag `h3sb\helper\h3sb_helper.exe` (the map window and the lines in the world; it is a Python program packed into an exe, and those get false alarms) and quarantine it. The manager then says the helper is missing. Restore it in Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine) and allow it, or unzip again.
+
 To watch the others, **Fly** (Halo 2 Physics section) flies your player where you look, through walls: the others see you. **Free Camera** (Camera section) flies only your view, unseen.
 
 To try a jump again, **Save spot** and **Back to spot** (Save Management, above Force Checkpoint) put you back where you saved: the place, your speed, crouch, which way you look and Halo 2's armed state. Only your own player moves, nothing is rolled back.

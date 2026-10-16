@@ -48,6 +48,8 @@ Made for MCC 1.3528 on Steam.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
 6. Helper windows (in the Halo 2 Physics section): the map window with call-outs, and lines drawn in the world.
+   "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
+   Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
 
 Style: Control > Style changes the overlay's look.
 Problems: send the Logs folder (and any HCM_CRASHDUMP file) to Poorboy - not to Burnt.

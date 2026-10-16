@@ -75,19 +75,32 @@ namespace
 			return message;
 		}
 
+		// a file of ours that was unzipped but is gone: antivirus programs quarantine the helper (and could the dll)
+		static constexpr const char* kAntivirusFix = "Restore it in Windows Security > Virus & threat protection > Protection history "
+			"(or your antivirus's quarantine) and allow it, or unzip Poorboys Checkpoint Manager again.";
+
+		static std::string missingFile(const std::wstring& path)
+		{
+			return std::format("Halo 2 physics: {} is missing. Your antivirus probably removed it (a false alarm). {}",
+				std::filesystem::path(path).string(), kAntivirusFix);
+		}
+
 		void startHelper(PROCESS_INFORMATION& pi, const std::wstring& args)
 		{
 			if (running(pi)) return;            // already open (both games' cheat instances get the same button press)
 			closeHandles(pi);
 			const std::wstring exe = mDir + L"helper\\h3sb_helper.exe";
-			if (!std::filesystem::exists(exe)) throw HCMRuntimeException(fail(std::format("Halo 2 physics: the helper is missing at {}", std::filesystem::path(exe).string())));
+			if (!std::filesystem::exists(exe)) throw HCMRuntimeException(fail(missingFile(exe)));
 			std::wstring cmd = L"\"" + exe + L"\" " + args;
 			STARTUPINFOW si{};
 			si.cb = sizeof(si);
 			if (!CreateProcessW(exe.c_str(), cmd.data(), nullptr, nullptr, FALSE, 0, nullptr, mDir.c_str(), &si, &pi))
 			{
+				const DWORD error = GetLastError();
 				pi = PROCESS_INFORMATION{};
-				throw HCMRuntimeException(fail(std::format("Halo 2 physics: could not start the helper (error {})", GetLastError())));
+				if (error == ERROR_VIRUS_INFECTED || error == ERROR_VIRUS_DELETED)
+					throw HCMRuntimeException(fail(std::format("Halo 2 physics: your antivirus blocked {} (a false alarm). {}", std::filesystem::path(exe).string(), kAntivirusFix)));
+				throw HCMRuntimeException(fail(std::format("Halo 2 physics: could not start the helper (error {})", error)));
 			}
 		}
 
@@ -108,7 +121,7 @@ namespace
 		void setDir(const std::string& pcmDir)
 		{
 			std::scoped_lock lock(mMutex);
-			if (mDir.empty()) mDir = std::filesystem::path(pcmDir).wstring() + L"\\h3sb\\";
+			if (mDir.empty()) mDir = (std::filesystem::path(pcmDir) / L"h3sb").wstring() + L"\\";     // pcmDir may end in a slash
 		}
 
 		// returns a line for the message log ("" = nothing worth saying)
@@ -127,7 +140,7 @@ namespace
 				return news(o);
 			}
 			const std::wstring dll = mDir + L"h3sb.dll";
-			if (!std::filesystem::exists(dll)) throw HCMRuntimeException(fail(std::format("Halo 2 physics: h3sb.dll is missing at {}", std::filesystem::path(dll).string())));
+			if (!std::filesystem::exists(dll)) throw HCMRuntimeException(fail(missingFile(dll)));
 			if (loaded() && mUnloadAsked)
 			{
 				// still on its way out from a moment ago: let it finish, then load it again
