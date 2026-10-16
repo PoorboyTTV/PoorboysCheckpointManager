@@ -5,8 +5,6 @@
 #include "DirPathContainer.h"
 #include "RuntimeExceptionHandler.h"
 #include "IMCCStateHook.h"
-#include "IMakeOrGetCheat.h"
-#include "GetPlayerViewAngle.h"
 #include <filesystem>
 #include <fstream>
 
@@ -21,6 +19,7 @@ namespace
 		bool noFallDeaths;
 		bool fly;            // h3sb_fly.txt; works with physics off too (the mod is then loaded for it alone, mode 0)
 		float flySpeed;
+		bool clip;           // h3sb_clip.txt: bottomless clip (HCM's Bottomless Clip toggle); with physics off too, like fly
 	};
 
 	// The one mod in the process, whichever game's cheat instance asks.
@@ -31,7 +30,7 @@ namespace
 		std::atomic<bool> mUnloadAsked = false;     // mode 9 written: the dll takes itself out within a quarter second
 		PROCESS_INFORMATION mLive{}, mWorld{};      // helper windows started from here
 		std::string mLastError;
-		bool mSaidPhysics = false, mSaidFly = false; // what the message log was last told (both games' instances call apply)
+		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false; // what the message log was last told (both games' instances call apply)
 		bool mSpotInUse = false;                    // Save spot was pressed: the mod stays loaded for it (observe mode when nothing else is on)
 
 		void writeSwitch(const wchar_t* name, int value)
@@ -53,8 +52,10 @@ namespace
 			std::string line;
 			if (o.physics != mSaidPhysics) line = o.physics ? "Halo 2 physics on" : "Halo 2 physics off: the game's own physics again";
 			if (o.fly != mSaidFly) line += std::string(line.empty() ? "" : ". ") + (o.fly ? "Fly on: stick where you look, jump up, crouch down" : "Fly off");
+			if (o.clip != mSaidClip) line += std::string(line.empty() ? "" : ". ") + (o.clip ? "Bottomless Clip enabled." : "Bottomless Clip disabled");
 			mSaidPhysics = o.physics;
 			mSaidFly = o.fly;
+			mSaidClip = o.clip;
 			return line;
 		}
 
@@ -129,11 +130,12 @@ namespace
 		{
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return "";
-			if (!o.physics && !o.fly && !mSpotInUse)
+			if (!o.physics && !o.fly && !o.clip && !mSpotInUse)
 			{
 				if (loaded() && !mUnloadAsked)
 				{
 					writeFly(false, o.flySpeed);
+					writeSwitch(L"h3sb_clip.txt", 0);
 					writeSwitch(L"h3sb_mode.txt", 9);
 					mUnloadAsked = true;
 				}
@@ -148,11 +150,13 @@ namespace
 				if (loaded()) throw HCMRuntimeException(fail("Halo 2 physics: the mod did not unload; switch it on again in a moment"));
 			}
 			mUnloadAsked = false;
-			// fly or the spot alone (physics off): the mod in observe mode with the game's own barriers, tick rate, melee and falls
+			// fly, bottomless clip or the spot alone (physics off): the mod in observe mode with the game's own barriers,
+			// tick rate, melee and falls
 			writeSwitch(L"h3sb_tick.txt", o.physics && o.tick30 ? 30 : 60);
 			writeSwitch(L"h3sb_barriers.txt", o.physics ? std::clamp(o.barriers, 0, 3) : 0);
 			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
 			writeSwitch(L"h3sb_falls.txt", o.physics && o.noFallDeaths ? 1 : 0);
+			writeSwitch(L"h3sb_clip.txt", o.clip ? 1 : 0);
 			writeFly(o.fly, o.flySpeed);
 			writeSwitch(L"h3sb_mode.txt", o.physics ? 3 : 0);
 			if (loaded()) return news(o);      // it reads the switches four times a second
@@ -270,21 +274,18 @@ private:
 	std::shared_ptr<RuntimeExceptionHandler> runtimeExceptions;
 	std::weak_ptr<IMCCStateHook> mccStateHookWeak;
 
-	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback;
+	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback, mClipCallback;
 	ScopedCallback<eventpp::CallbackList<void(float&)>> mFlySpeedCallback;
 	ScopedCallback<eventpp::CallbackList<void(int&)>> mBarriersCallback;
 	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mWorldLinesCallback, mCloseHelpersCallback;
 	ScopedCallback<ActionEvent> mSpotSaveCallback, mSpotBackCallback;
-	// the view direction goes with the spot: the mod keeps the player's place, speed and armed state, this the camera
-	std::weak_ptr<GetPlayerViewAngle> mViewAngleWeak;
-	std::optional<SimpleMath::Vector2> mSpotView;
 
 	H3sbOptions options()
 	{
 		auto s = mSettingsWeak.lock();
 		if (!s) throw HCMRuntimeException("Halo 2 physics: settings went away");
 		return H3sbOptions{ s->h2pPhysicsToggle->GetValue(), s->h2pBarriers->GetValue(), s->h2pTick30Toggle->GetValue(), s->h2pCombosToggle->GetValue(),
-			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue() };
+			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue(), s->bottomlessClipToggle->GetValue() };
 	}
 
 	void say(const std::string& line)
@@ -330,22 +331,12 @@ private:
 			H3sbStatus s{};
 			s.size = (int32_t)sizeof(H3sbStatus);
 			const bool armed = host().readStatus(&s) == 1 && s.have_body && s.armed;
+			// the mod keeps the view with the spot too (HCM's view-angle pointer reads a checkpoint copy, so it fails in
+			// multiplayer and is stale in campaign)
 			if (host().spot(1) != 1)
 			{
 				say("Spot not saved: the Halo 2 physics mod is not running");
 				return;
-			}
-			mSpotView.reset();
-			if (auto view = mViewAngleWeak.lock())
-			{
-				try
-				{
-					mSpotView = view->getPlayerViewAngle();
-				}
-				catch (HCMRuntimeException ex)
-				{
-					PLOG_ERROR << "Save spot: the view direction could not be read, the spot keeps the place only: " << ex.what();
-				}
 			}
 			say(armed ? "Spot saved (armed)" : "Spot saved");
 		});
@@ -368,8 +359,6 @@ private:
 				say("Back to spot: the Halo 2 physics mod is not running");
 				return;
 			}
-			if (mSpotView)
-				if (auto view = mViewAngleWeak.lock()) view->setPlayerViewAngle(*mSpotView);
 			say(s.spot_armed ? "Back to spot (armed)" : "Back to spot");
 		});
 	}
@@ -388,6 +377,7 @@ public:
 		mBarriersCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pBarriers->valueChangedEvent, [this](int&) { onChange(); }),
 		mFlyCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlyToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mFlySpeedCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlySpeed->valueChangedEvent, [this](float&) { onChange(); }),
+		mClipCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->bottomlessClipToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mArmCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pArmEvent, [this]() { onArm(); }),
 		mMapWindowCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenMapWindowEvent, [this]() {
 			guarded([this]() { host().openMapWindow(mSettingsWeak.lock()->h2pCalloutsToggle->GetValue()); });
@@ -398,19 +388,6 @@ public:
 		mSpotBackCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->spotBackEvent, [this]() { onSpotBack(); })
 	{
 		host().setDir(dicon.Resolve<DirPathContainer>().lock()->dirPath);
-		// HCM's own view-angle reader: without it the spot still works, it just does not turn the camera back
-		try
-		{
-			mViewAngleWeak = resolveDependentCheat(GetPlayerViewAngle);
-		}
-		catch (HCMInitException ex)
-		{
-			PLOG_ERROR << "Save spot: no view angle for this game, Back to spot keeps the camera where it is: " << ex.what();
-		}
-		catch (std::bad_weak_ptr)
-		{
-			PLOG_ERROR << "Save spot: no view angle for this game (bad_weak_ptr)";
-		}
 		// switched on last time PCM ran: on again (a missing dll is reported, it does not stop PCM)
 		try
 		{

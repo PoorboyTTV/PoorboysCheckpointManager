@@ -94,7 +94,7 @@
 	((invulnerabilitySettingsSubheading, (ALL_SUPPORTED_GAMES)))\
 	((invulnNPCGUI, (ALL_SUPPORTED_GAMES)))\
 	((infiniteAmmoGUI, (Halo1, Halo2)))\
-	((bottomlessClipGUI, (Halo1, Halo2)))\
+	((bottomlessClipGUI, (Halo1, Halo2, Halo3, Halo3ODST)))\
 	((aiFreezeGUI, (ALL_SUPPORTED_GAMES)))\
 	((medusaGUI, (Halo1, Halo2)))\
 	((forceTeleportGUI, (ALL_SUPPORTED_GAMES)))\

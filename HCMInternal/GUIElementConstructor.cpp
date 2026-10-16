@@ -170,7 +170,7 @@ private:
 
 				case GUIElementEnum::h2pCombosToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("Halo 2's button combos: melee cancels (BXR, BXB, double shot) and melee lock"), RebindableHotkeyEnum::h2pCombosHotkey, "Halo 2 button combos", settings->h2pCombosToggle));
+						(game, ToolTipCollection("Halo 2's button combos: melee cancels (BXR, BXB, double shot) and melee lock, and the plasma pistol double grenade (charged shot, then about a second later grenade, grenade: the pistol's overheat cuts the first throw short)"), RebindableHotkeyEnum::h2pCombosHotkey, "Halo 2 button combos", settings->h2pCombosToggle));
 
 				case GUIElementEnum::h2pNoFallDeathsToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>

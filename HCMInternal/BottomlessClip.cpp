@@ -6,6 +6,8 @@
 #include "RuntimeExceptionHandler.h"
 #include "MultilevelPointer.h"
 #include "PointerDataStore.h"
+#include "IMakeOrGetCheat.h"
+#include "Halo2Physics.h"
 
 template <GameState::Value gameT>
 class BottomlessClipImplSetFlag : public IBottomlessClipImpl
@@ -73,6 +75,21 @@ public:
 	}
 };
 
+// Poorboys Checkpoint Manager: MCC's Halo 3 and ODST have no cheat flag to set (their dev cheats are compiled out), so
+// the Halo 2 physics mod does it (h3sb_clip.txt): Halo2Physics follows bottomlessClipToggle and loads the mod for it,
+// with physics off too. This only ties the toggle to that service, so the checkbox shows only where it can work.
+class BottomlessClipImplH3sb : public IBottomlessClipImpl
+{
+	std::shared_ptr<Halo2Physics> mHalo2Physics;
+
+public:
+	BottomlessClipImplH3sb(GameState game, IDIContainer& dicon)
+		: mHalo2Physics(resolveDependentCheat(Halo2Physics))
+	{
+		if (!mHalo2Physics) throw HCMInitException("Bottomless Clip: no Halo 2 physics service for this game");
+	}
+};
+
 
 
 BottomlessClip::BottomlessClip(GameState gameImpl, IDIContainer& dicon)
@@ -85,6 +102,11 @@ BottomlessClip::BottomlessClip(GameState gameImpl, IDIContainer& dicon)
 
 	case GameState::Value::Halo2:
 		pimpl = std::make_unique<BottomlessClipImplSetFlag<GameState::Value::Halo2>>(gameImpl, dicon);
+		break;
+
+	case GameState::Value::Halo3:
+	case GameState::Value::Halo3ODST:
+		pimpl = std::make_unique<BottomlessClipImplH3sb>(gameImpl, dicon);
 		break;
 
 

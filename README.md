@@ -31,12 +31,14 @@ A **Halo 2 Physics** section in the in-game overlay (Halo 3 and ODST), every swi
 * Halo 2 physics on / off (Halo 2's player body, movement and jump; superbounces work as in Halo 2)
 * Barriers: the game's own, soft ceilings off, out-of-bounds kill off, kill volumes off
 * 30 tick (Halo 2's rate) or MCC's 60
-* Halo 2's button combos
+* Halo 2's button combos, including the plasma pistol double grenade (the pistol's overheat cuts a throw short)
 * Falling deaths on / off
 * Live status: armed or not, speed against the 5.45 a step has to pass
 * Fly: your player flies where you look (others see it)
 
-And in **Save Management**, above Force Checkpoint: **Save spot** / **Back to spot** (Halo 3 and ODST, with Halo 2 physics on or off), bindable to a key or a controller button.
+And in **Save Management**, above Force Checkpoint: **Save spot** / **Back to spot** (Halo 3 and ODST, with Halo 2 physics on or off; you face the way you looked when you saved), bindable to a key or a controller button.
+
+**Bottomless Clip** (Useful Cheats) now also works in Halo 3 and ODST: your own magazine never empties and plasma batteries don't drain; reserve ammo and grenades still count, and plasma weapons still overheat.
 
 It runs side by side with the original Halo Checkpoint Manager's files without clashing (its own dll names, shared memory and process names), but use one of the two at a time.
 

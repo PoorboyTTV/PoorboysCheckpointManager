@@ -41,8 +41,11 @@ Made for MCC 1.3528 on Steam.
    the game is paused while the overlay is open, and the physics takes hold once the game runs.
      F7   barriers (the game's own / soft ceilings off / + out-of-bounds kill off / + kill volumes off)
      F9   30 tick (Halo 2's rate)        F10  Halo 2 button combos        F11  no falling deaths
+          (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
      Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
+   Useful Cheats: "Bottomless Clip" works in Halo 3 and ODST too (your magazine never empties; reserve ammo and
+   grenades still count). Reload first: a part-empty magazine stays as it is.
    Save Management: "Save spot" and "Back to spot" put you back where you saved (place, speed, view, armed state)
    without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
