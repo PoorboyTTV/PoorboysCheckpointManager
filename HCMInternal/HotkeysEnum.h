@@ -126,6 +126,8 @@ h2pCombosHotkey, \
 h2pNoFallDeathsHotkey, \
 h2pArmHotkey, \
 h2pFlyHotkey, \
+h2pDisableAIHotkey, \
+h2pForgeBounceHotkey, \
 spotSaveHotkey, \
 spotBackHotkey
 

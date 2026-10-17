@@ -11,6 +11,8 @@
 //     h3sb_falls.txt     1 no falling damage or falling deaths, 0 the game's own
 //     h3sb_fly.txt       "1 <speed>" fly (any mode, 0 too), speed in world units a second; "0" or no file = off
 //     h3sb_clip.txt      1 bottomless clip and grenades for this machine's player (any mode, 0 too), 0 the game's own
+//     h3sb_ai.txt        1 the AI switched off (ai_enable false; any mode, 0 too), 0 the game's own
+//     h3sb_forge.txt     1 Forge objects are part of the map for the Halo 2 body (Halo 3, Reach), 0 Halo 2's own rule
 #pragma once
 
 #include <stdint.h>

@@ -36,6 +36,8 @@ class HotkeyEventsLambdas
 	ScopedCallback<ActionEvent> mh2pCombosHotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pNoFallDeathsHotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pFlyHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pDisableAIHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pForgeBounceHotkeyCallbackHandle;
 	
 
 public:
@@ -68,7 +70,9 @@ public:
 		mh2pTick30HotkeyCallbackHandle(settings->h2pTick30HotkeyEvent, [boolsetting = settings->h2pTick30Toggle]() { boolsetting->flipBoolSetting(); }),
 		mh2pCombosHotkeyCallbackHandle(settings->h2pCombosHotkeyEvent, [boolsetting = settings->h2pCombosToggle]() { boolsetting->flipBoolSetting(); }),
 		mh2pNoFallDeathsHotkeyCallbackHandle(settings->h2pNoFallDeathsHotkeyEvent, [boolsetting = settings->h2pNoFallDeathsToggle]() { boolsetting->flipBoolSetting(); }),
-		mh2pFlyHotkeyCallbackHandle(settings->h2pFlyHotkeyEvent, [boolsetting = settings->h2pFlyToggle]() { boolsetting->flipBoolSetting(); })
+		mh2pFlyHotkeyCallbackHandle(settings->h2pFlyHotkeyEvent, [boolsetting = settings->h2pFlyToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pDisableAIHotkeyCallbackHandle(settings->h2pDisableAIHotkeyEvent, [boolsetting = settings->h2pDisableAIToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pForgeBounceHotkeyCallbackHandle(settings->h2pForgeBounceHotkeyEvent, [boolsetting = settings->h2pForgeBounceToggle]() { boolsetting->flipBoolSetting(); })
 		
 
 	{ PLOG_DEBUG << "HotkeyEvents con"; }

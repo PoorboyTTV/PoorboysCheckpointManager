@@ -68,6 +68,8 @@ public:
 	std::shared_ptr<ActionEvent> h2pCombosHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pNoFallDeathsHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pFlyHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pDisableAIHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pForgeBounceHotkeyEvent = std::make_shared<ActionEvent>();
 	
 	
 
@@ -594,6 +596,12 @@ public:
 		(true, [](bool in) { return true; }, nameof(h2pCombosToggle));
 	std::shared_ptr<BinarySetting<bool>> h2pNoFallDeathsToggle = std::make_shared<BinarySetting<bool>>
 		(true, [](bool in) { return true; }, nameof(h2pNoFallDeathsToggle));
+	// Disable AI (h3sb_ai.txt): the game's own "ai_enable false", replayed in Theatre films; not saved (starts off)
+	std::shared_ptr<BinarySetting<bool>> h2pDisableAIToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pDisableAIToggle));
+	// Forge bounces (h3sb_forge.txt): with Halo 2 physics on, Forge objects are part of the map for the Halo 2 body
+	std::shared_ptr<BinarySetting<bool>> h2pForgeBounceToggle = std::make_shared<BinarySetting<bool>>
+		(true, [](bool in) { return true; }, nameof(h2pForgeBounceToggle));
 	// fly: not saved (starts off every time, so nobody spawns flying); its speed is saved, world units a second
 	std::shared_ptr<BinarySetting<bool>> h2pFlyToggle = std::make_shared<BinarySetting<bool>>
 		(false, [](bool in) { return true; }, nameof(h2pFlyToggle));
@@ -2253,6 +2261,7 @@ public:
 		h2pTick30Toggle,
 		h2pCombosToggle,
 		h2pNoFallDeathsToggle,
+		h2pForgeBounceToggle,
 		h2pFlySpeed,
 		h2pCalloutsToggle,
 		pcmTheme,

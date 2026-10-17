@@ -20,6 +20,8 @@ namespace
 		bool fly;            // h3sb_fly.txt; works with physics off too (the mod is then loaded for it alone, mode 0)
 		float flySpeed;
 		bool clip;           // h3sb_clip.txt: bottomless clip (HCM's Bottomless Clip toggle); with physics off too, like fly
+		bool ai;             // h3sb_ai.txt: Disable AI; with physics off too
+		bool forge;          // h3sb_forge.txt: Forge objects count as the map (with physics on)
 	};
 
 	// The one mod in the process, whichever game's cheat instance asks.
@@ -30,7 +32,7 @@ namespace
 		std::atomic<bool> mUnloadAsked = false;     // mode 9 written: the dll takes itself out within a quarter second
 		PROCESS_INFORMATION mLive{}, mWorld{};      // helper windows started from here
 		std::string mLastError;
-		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false; // what the message log was last told (both games' instances call apply)
+		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false, mSaidAI = false; // what the message log was last told (both games' instances call apply)
 		bool mSpotInUse = false;                    // Save spot was pressed: the mod stays loaded for it (observe mode when nothing else is on)
 
 		void writeSwitch(const wchar_t* name, int value)
@@ -55,7 +57,9 @@ namespace
 			if (o.clip != mSaidClip) line += std::string(line.empty() ? "" : ". ") + (o.clip ? "Bottomless Clip enabled." : "Bottomless Clip disabled");
 			mSaidPhysics = o.physics;
 			mSaidFly = o.fly;
+			if (o.ai != mSaidAI) line += std::string(line.empty() ? "" : ". ") + (o.ai ? "AI disabled" : "AI back on");
 			mSaidClip = o.clip;
+			mSaidAI = o.ai;
 			return line;
 		}
 
@@ -130,12 +134,13 @@ namespace
 		{
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return "";
-			if (!o.physics && !o.fly && !o.clip && !mSpotInUse)
+			if (!o.physics && !o.fly && !o.clip && !o.ai && !mSpotInUse)
 			{
 				if (loaded() && !mUnloadAsked)
 				{
 					writeFly(false, o.flySpeed);
 					writeSwitch(L"h3sb_clip.txt", 0);
+					writeSwitch(L"h3sb_ai.txt", 0);
 					writeSwitch(L"h3sb_mode.txt", 9);
 					mUnloadAsked = true;
 				}
@@ -157,6 +162,8 @@ namespace
 			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
 			writeSwitch(L"h3sb_falls.txt", o.physics && o.noFallDeaths ? 1 : 0);
 			writeSwitch(L"h3sb_clip.txt", o.clip ? 1 : 0);
+			writeSwitch(L"h3sb_ai.txt", o.ai ? 1 : 0);
+			writeSwitch(L"h3sb_forge.txt", o.physics && o.forge ? 1 : 0);
 			writeFly(o.fly, o.flySpeed);
 			writeSwitch(L"h3sb_mode.txt", o.physics ? 3 : 0);
 			if (loaded()) return news(o);      // it reads the switches four times a second
@@ -274,7 +281,7 @@ private:
 	std::shared_ptr<RuntimeExceptionHandler> runtimeExceptions;
 	std::weak_ptr<IMCCStateHook> mccStateHookWeak;
 
-	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback, mClipCallback;
+	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback, mClipCallback, mAICallback, mForgeCallback;
 	ScopedCallback<eventpp::CallbackList<void(float&)>> mFlySpeedCallback;
 	ScopedCallback<eventpp::CallbackList<void(int&)>> mBarriersCallback;
 	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mWorldLinesCallback, mCloseHelpersCallback;
@@ -285,7 +292,8 @@ private:
 		auto s = mSettingsWeak.lock();
 		if (!s) throw HCMRuntimeException("Halo 2 physics: settings went away");
 		return H3sbOptions{ s->h2pPhysicsToggle->GetValue(), s->h2pBarriers->GetValue(), s->h2pTick30Toggle->GetValue(), s->h2pCombosToggle->GetValue(),
-			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue(), s->bottomlessClipToggle->GetValue() };
+			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue(), s->bottomlessClipToggle->GetValue(),
+			s->h2pDisableAIToggle->GetValue(), s->h2pForgeBounceToggle->GetValue() };
 	}
 
 	void say(const std::string& line)
@@ -378,6 +386,8 @@ public:
 		mFlyCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlyToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mFlySpeedCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlySpeed->valueChangedEvent, [this](float&) { onChange(); }),
 		mClipCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->bottomlessClipToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mAICallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pDisableAIToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mForgeCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pForgeBounceToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mArmCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pArmEvent, [this]() { onArm(); }),
 		mMapWindowCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenMapWindowEvent, [this]() {
 			guarded([this]() { host().openMapWindow(mSettingsWeak.lock()->h2pCalloutsToggle->GetValue()); });

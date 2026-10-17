@@ -28,11 +28,13 @@
 	((h2pFlySpeedGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pBarriersGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pTick30ToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
-	((h2pCombosToggleGUI, (Halo3, Halo3ODST)))\
+	((h2pCombosToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pNoFallDeathsToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pDisableAIGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pForgeBounceGUI, (Halo3, HaloReach)))\
 	((spotSaveGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((spotBackGUI, (Halo3, Halo3ODST, HaloReach)))\
-	((h2pBottomlessClipGUI, (Halo3, Halo3ODST)))\
+	((h2pBottomlessClipGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pHelpersSubheading, (Halo3, Halo3ODST, HaloReach)))\
 		((h2pCalloutsToggleGUI, (Halo3, Halo3ODST)))\
 		((h2pOpenMapWindowGUI, (Halo3, Halo3ODST)))\

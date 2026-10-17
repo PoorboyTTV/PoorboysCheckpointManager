@@ -75,7 +75,7 @@ public:
 	}
 };
 
-// Poorboys Checkpoint Manager: MCC's Halo 3 and ODST have no cheat flag to set (their dev cheats are compiled out), so
+// Poorboys Checkpoint Manager: MCC's Halo 3, ODST and Reach have no cheat flag to set (their dev cheats are compiled out), so
 // the Halo 2 physics mod does it (h3sb_clip.txt): Halo2Physics follows bottomlessClipToggle and loads the mod for it,
 // with physics off too. This only ties the toggle to that service, so the checkbox shows only where it can work.
 class BottomlessClipImplH3sb : public IBottomlessClipImpl
@@ -106,6 +106,7 @@ BottomlessClip::BottomlessClip(GameState gameImpl, IDIContainer& dicon)
 
 	case GameState::Value::Halo3:
 	case GameState::Value::Halo3ODST:
+	case GameState::Value::HaloReach:
 		pimpl = std::make_unique<BottomlessClipImplH3sb>(gameImpl, dicon);
 		break;
 

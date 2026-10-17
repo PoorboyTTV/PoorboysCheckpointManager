@@ -518,6 +518,14 @@ private:
 		mSettings->h2pFlyHotkeyEvent,
 		vsk{}),
 
+		initEventOnPressHotkey(h2pDisableAIHotkey,
+		mSettings->h2pDisableAIHotkeyEvent,
+		vsk{}),
+
+		initEventOnPressHotkey(h2pForgeBounceHotkey,
+		mSettings->h2pForgeBounceHotkeyEvent,
+		vsk{}),
+
 		// Save spot / Back to spot (Poorboy's Mods): unbound like the two above
 		initEventOnPressHotkey(spotSaveHotkey,
 		mSettings->spotSaveEvent,

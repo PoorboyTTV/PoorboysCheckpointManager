@@ -138,6 +138,12 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 	{GUIElementEnum::h2pNoFallDeathsToggleGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
+	{GUIElementEnum::h2pDisableAIGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pForgeBounceGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
 	{GUIElementEnum::h2pHelpersSubheading,
 			{OptionalCheatEnum::Halo2Physics}
 	},

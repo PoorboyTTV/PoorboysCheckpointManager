@@ -127,7 +127,7 @@ private:
 			//      Manager's own sections (Halo2Physics.cpp, GUIH2Physics.h, BottomlessClip.cpp) ----
 			case GUIElementEnum::halo2PhysicsHeadingGUI:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>
-					(game, ToolTipCollection("Poorboy's mods for Halo 3 and ODST, kept apart from Halo Checkpoint Manager's own features below: Halo 2's physics (player body, movement, jump, superbounces), button combos and lunges, fly, save spot, bottomless clip"), "Poorboy's Mods", headerChildElements
+					(game, ToolTipCollection("Poorboy's mods for Halo 3, ODST and Reach, kept apart from Halo Checkpoint Manager's own features below: Halo 2's physics (player body, movement, jump, superbounces), button combos and lunges, fly, save spot, bottomless clip"), "Poorboy's Mods", headerChildElements
 						{
 						createNestedElement(GUIElementEnum::h2pStatusGUI),
 						createNestedElement(GUIElementEnum::h2pPhysicsToggleGUI),
@@ -138,6 +138,8 @@ private:
 						createNestedElement(GUIElementEnum::h2pTick30ToggleGUI),
 						createNestedElement(GUIElementEnum::h2pCombosToggleGUI),
 						createNestedElement(GUIElementEnum::h2pNoFallDeathsToggleGUI),
+						createNestedElement(GUIElementEnum::h2pDisableAIGUI),
+						createNestedElement(GUIElementEnum::h2pForgeBounceGUI),
 						createNestedElement(GUIElementEnum::spotSaveGUI),
 						createNestedElement(GUIElementEnum::spotBackGUI),
 						createNestedElement(GUIElementEnum::h2pBottomlessClipGUI),
@@ -179,6 +181,14 @@ private:
 				case GUIElementEnum::h2pBottomlessClipGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
 						(game, ToolTipCollection("Your magazine never empties, plasma batteries don't drain and your grenades never run out (you need at least one of a kind). Reserve ammo still counts and plasma weapons still overheat. Reload first: a part-empty magazine stays as it is"), RebindableHotkeyEnum::bottomlessClip, "Bottomless Clip", settings->bottomlessClipToggle));
+
+				case GUIElementEnum::h2pDisableAIGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Switches the AI off, as the game's own ai_enable false: enemies and allies stand still and don't shoot. For campaign practice and videos: Theatre films replay it exactly (Cheats' Freeze AI does not). Works with Halo 2 physics on or off; starts off every time"), RebindableHotkeyEnum::h2pDisableAIHotkey, "Disable AI", settings->h2pDisableAIToggle));
+
+				case GUIElementEnum::h2pForgeBounceGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("With Halo 2 physics on: Forge objects count as part of the map for the Halo 2 body, so the seams between Forge pieces (and between a piece and the map) bounce like map seams. For building your own bounce maps. Off = Halo 2's own rule (every object is its own body; in Reach Forge pieces are then not solid for the Halo 2 body)"), RebindableHotkeyEnum::h2pForgeBounceHotkey, "Forge bounces", settings->h2pForgeBounceToggle));
 
 				case GUIElementEnum::h2pNoFallDeathsToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
