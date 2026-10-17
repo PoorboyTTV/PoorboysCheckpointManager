@@ -30,13 +30,13 @@ MSBUILD = os.environ.get('MSBUILD', r'C:\Program Files\Microsoft Visual Studio\2
 VCPKG = os.environ.get('VCPKG_ROOT', os.path.join(HCM, 'vcpkg'))
 COMMON = ['/nologo', '/v:m', '/nodeReuse:false', '/p:Configuration=Release', '/p:Platform=x64']
 HOW_TO = """Poorboys Checkpoint Manager
-Halo Checkpoint Manager (by Burnt-o and Harc) with Poorboy's Halo 2 physics for Halo 3 and Halo 3: ODST.
+Halo Checkpoint Manager (by Burnt-o and Harc) with Poorboy's Halo 2 physics for Halo 3, Halo 3: ODST and Halo: Reach.
 Made for MCC 1.3528 on Steam.
 
 1. Start MCC with anti-cheat OFF (Steam: Play, then "Halo: MCC Anti-Cheat Disabled").
 2. Run PoorboysCheckpointManager.exe from this folder and say yes to the administrator prompt.
    Keep the folder together: everything in it is used. Windows may warn about an unknown publisher (it is not signed).
-3. In MCC start a Halo 3 or ODST game. The overlay opens and closes with ` (the key left of 1).
+3. In MCC start a Halo 3, ODST or Reach game. The overlay opens and closes with ` (the key left of 1).
 4. Poorboy's Mods, the first section of the overlay (everything Poorboy added is there, apart from Halo Checkpoint
    Manager's own sections below it): tick "Halo 2 physics" or press F6. Then close the overlay with ` :
    the game is paused while the overlay is open, and the physics takes hold once the game runs.
@@ -49,7 +49,11 @@ Made for MCC 1.3528 on Steam.
           flying = rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
      Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
-   "Bottomless Clip" (Poorboy's Mods) in Halo 3 and ODST: your magazine never empties and your grenades
+     Disable AI  the AI stands still (campaign practice and videos); Forge bounces: Forge objects bounce like the map
+   Barrier breaks (as in MCC Halo 2, 30 tick): bump a wall again and again next to a sharp corner, then walk into
+   the other wall. Theatre films replay what the Halo 2 physics did, for filming clips.
+   Reach: the jetpack, sprint, evade and armor lock work with Halo 2 physics; you can superbounce out of an evade.
+   "Bottomless Clip" (Poorboy's Mods) in Halo 3, ODST and Reach: your magazine never empties and your grenades
    never run out; reserve ammo still counts). Reload first: a part-empty magazine stays as it is. Grenades: you
    need at least one of a kind, then throwing it never uses it up.
    "Save spot" and "Back to spot" (Poorboy's Mods) put you back where you saved (place, speed, view, armed state)
@@ -62,10 +66,11 @@ Made for MCC 1.3528 on Steam.
    "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
    Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
 
-Poorboy's logo sits in the top-left corner of Halo 3 and ODST games, left of the grenade counts: clips show
+Poorboy's logo sits in the top-left corner of Halo 3, ODST and Reach games, left of the grenade counts: clips show
 the game was played with Poorboy's mods.
 Style: Control > Style changes the overlay's look.
-Problems: send the Logs folder (and any HCM_CRASHDUMP file) to Poorboy - not to Burnt.
+Problems, questions, or something you want added: Poorboy on Discord, @poorboy. Send the Logs folder,
+h3sb\\h3sb.log and h3sb\\h3sb_prev.log (and any HCM_CRASHDUMP file) - to Poorboy, not to Burnt.
 """
 
 
