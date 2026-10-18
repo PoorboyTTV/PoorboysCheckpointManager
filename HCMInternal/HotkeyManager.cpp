@@ -111,12 +111,17 @@ HotkeyManager::~HotkeyManager()
 void HotkeyManager::pollInput()// we poll every frame. Really we could've chosen any time interval but this is convienent
 {
 	bool hotkeysShouldBeDisabled = mHotkeyDisabler->serviceIsRequested();
+	const auto& settings = mHotkeyDefinitions->settings();
+	const bool flyHold = settings && settings->h2pFlyHoldToggle->GetValue();
+	pollFlyHold(hotkeysShouldBeDisabled);
 
 
 	for (auto& [hotkeyEnum, hotkey] : mHotkeyDefinitions->getAllEventOnPressHotkeys())
 	{
 		if (hotkeysShouldBeDisabled && !hotkey->ignoresHotkeyDisabler)
 			continue;
+		if (flyHold && hotkeyEnum == RebindableHotkeyEnum::h2pFlyHotkey)
+			continue; // held instead of pressed (pollFlyHold)
 
 
 		for (auto& bindingSet : hotkey->getBindings())
@@ -130,6 +135,35 @@ void HotkeyManager::pollInput()// we poll every frame. Really we could've chosen
 		}
 
 	}
+}
+
+
+// "Hold the Fly key to fly": fly is on while the Fly hotkey is held, off once it is let go (or the hotkeys are blocked:
+// the overlay was opened)
+void HotkeyManager::pollFlyHold(bool disabled)
+{
+	const auto& settings = mHotkeyDefinitions->settings();
+	if (!settings || !settings->h2pFlyHoldToggle->GetValue())
+	{
+		mFlyHeld = false;
+		return;
+	}
+	const auto& all = mHotkeyDefinitions->getAllEventOnPressHotkeys();
+	const auto it = all.find(RebindableHotkeyEnum::h2pFlyHotkey);
+	const bool down = !disabled && it != all.end() && it->second->isCurrentlyDown();
+	if (down == mFlyHeld) return;
+	mFlyHeld = down;
+	mFlyHold->want = down;
+	// off the render thread, as the other hotkeys' events: switching fly can load the Halo 2 physics mod
+	std::thread([state = mFlyHold, fly = settings->h2pFlyToggle]() {
+		std::scoped_lock lock(state->mutex);
+		const bool want = state->want;
+		if (fly->GetValue() != want)
+		{
+			fly->GetValueDisplay() = want;
+			fly->UpdateValueWithInput();
+		}
+		}).detach();
 }
 
 

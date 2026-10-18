@@ -14,7 +14,8 @@ void MessagesGUI::onImGuiRenderEvent(SimpleMath::Vector2 screenSize)
 		auto mSettings = mSettingsWeak->lock();
 		if (mSettings)
 		{
-			hideMessages = Lapua::lapuaGood && Lapua::lapuaGood2 && mSettings->hideWatermark->GetValue() && mSettings->hideWatermarkHideMessages->GetValue();
+			hideMessages = Lapua::lapuaGood && Lapua::lapuaGood2 && ((mSettings->hideWatermark->GetValue() && mSettings->hideWatermarkHideMessages->GetValue())
+				|| (mSettings->hideHUDToggle->GetValue() && Lapua::shouldRunForWatermark));       // Hide HUD hides the messages too
 		}
 	}
 

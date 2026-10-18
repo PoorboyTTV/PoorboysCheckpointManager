@@ -21,10 +21,11 @@ ROOT = os.path.dirname(HERE)
 HCM = os.path.dirname(ROOT)
 BUILD = os.path.join(ROOT, 'HCMExternal', 'bin', 'x64', 'Release', 'net7.0-windows')
 ATLAS = os.environ.get('H3SB_SOURCE', os.path.join(os.path.dirname(HCM), 'h2-bounce-atlas', 're'))
-MOD_DLL = os.path.join(ATLAS, 'port', 'bin2', 'h3sb.dll')
+# H3SB_DLL = another build of the mod (a test build); PCM_STAGE = another folder to assemble in (default dist\<name>)
+MOD_DLL = os.environ.get('H3SB_DLL', os.path.join(ATLAS, 'port', 'bin2', 'h3sb.dll'))
 BUNDLE = os.path.join(ATLAS, 'bundle', 'out', 'Halo 2 Physics for MCC Halo 3')
 NAME = 'Poorboys Checkpoint Manager'
-STAGE = os.path.join(HCM, 'dist', NAME)
+STAGE = os.environ.get('PCM_STAGE', os.path.join(HCM, 'dist', NAME))
 ZIP = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HCM, 'dist', NAME + '.zip')
 MSBUILD = os.environ.get('MSBUILD', r'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe')
 VCPKG = os.environ.get('VCPKG_ROOT', os.path.join(HCM, 'vcpkg'))
@@ -48,7 +49,8 @@ Made for MCC 1.3528 on Steam.
           X during a weapon switch swaps at once; with Halo 2 physics on, Halo 2's lunges: butterflying, and sword
           flying = rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
-     Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself
+     Fly      your player flies where you look, jump up, crouch down (others see it); bind it yourself.
+              "Hold the Fly key to fly": it flies only while the key is held
      Disable AI  the AI stands still (campaign practice and videos); Forge bounces: Forge objects bounce like the map
    Barrier breaks (as in MCC Halo 2, 30 tick): bump a wall again and again next to a sharp corner, then walk into
    the other wall. Theatre films replay what the Halo 2 physics did, for filming clips.
@@ -62,7 +64,13 @@ Made for MCC 1.3528 on Steam.
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
    Online (custom games, everyone with anti-cheat off): everyone runs this same version, with the same 30 tick
    setting as the host (on for superbounces).
-6. Helper windows (in Poorboy's Mods): the map window with call-outs, and lines drawn in the world.
+6. Map grid (in Poorboy's Mods, bind it with its .. button): every collision edge of the map drawn into the game view,
+   hidden behind walls: cyan = the map, yellow = instanced geometry; sliders for line width and opacity, players are
+   drawn in front of the lines. Hide HUD (Halo Checkpoint Manager's) hides the overlay's text too. Jump spots: Halo 3's own maps' bounce spots near you
+   (green landing edge, magenta take-off mark with the stick recipe, orange fast-drop seams).
+   Armed: your own dot in the middle of Halo 3's motion tracker turns green (it shows while you move). Crouch, release
+   or tap crouch on the exact tick you land also arms you, as in Halo 2.
+   Helper windows (in Poorboy's Mods): the map window with call-outs (Halo 3, ODST).
    "The helper is missing": your antivirus removed h3sb\\helper\\h3sb_helper.exe (a false alarm). Restore it in
    Windows Security > Virus & threat protection > Protection history (or your antivirus's quarantine), or unzip again.
 
@@ -100,7 +108,12 @@ def main():
     run([MSBUILD, os.path.join(ROOT, 'HaloCheckpointManager.sln'), '/m', '/restore'] + COMMON +
         ['/p:VcpkgRoot=' + VCPKG + '\\', '/p:ForceImportBeforeCppTargets=' + os.path.join(VCPKG, 'scripts', 'buildsystems', 'msbuild', 'vcpkg.targets')])
     if os.path.isdir(STAGE):
-        shutil.rmtree(STAGE)
+        # a copy that is running (or open somewhere) cannot be renamed: stop before deleting half of it
+        try:
+            os.rename(STAGE, STAGE + '.old')
+        except OSError as e:
+            sys.exit('%s is in use (is that copy of the app running?): %s' % (STAGE, e))
+        shutil.rmtree(STAGE + '.old')
     os.makedirs(STAGE)
     run([MSBUILD, os.path.join(ROOT, 'HCMExternal', 'HCMExternal.csproj'), '/t:Publish', '/restore'] + COMMON +
         ['/p:RuntimeIdentifier=win-x64', '/p:SelfContained=true', '/p:BuildProjectReferences=false', '/p:PublishDir=' + STAGE + '\\'])

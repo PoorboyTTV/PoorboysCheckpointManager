@@ -6,6 +6,7 @@
 #include "D3D11Hook.h"
 #include "ImGuiManager.h"
 #include "PoorboyLogo.h"
+#include "PoorboyWorldLines.h"
 #include "PointerDataStore.h"
 #include "PointerDataParser.h"
 #include "PointerDataGetter.h"
@@ -163,12 +164,13 @@ public:
             auto HCMGUI = std::make_shared<HCMInternalGUI>(mccStateHook, guistore, hkr, imm->MidgroundRenderEvent, std::reinterpret_pointer_cast<IMCCStateHook>(mccStateHook)->getMCCStateChangedEvent(), control, settings, (bool*)isCursorShowingResolved); PLOGV << "HCMGUI init";// main gui. Mostly just a canvas for rendering a collection of IGUIElements that will get constructed a bit below.
             mes->setAnchorPoint(HCMGUI);
             auto poorboyLogo = std::make_shared<PoorboyLogo>(mccStateHook, imm->ForegroundDirectXRenderEvent); PLOGV << "poorboyLogo init"; // Poorboy's logo left of the grenade counts (Halo 3, ODST)
+            auto poorboyWorldLines = std::make_shared<PoorboyWorldLines>(mccStateHook, imm->ForegroundDirectXRenderEvent, settings, dirPath); PLOGV << "poorboyWorldLines init"; // Map grid / Jump spots: the map's collision edges drawn into the game view
 
             auto hb = std::make_shared<HeartbeatTimer>(sharedMem, settings); PLOGV << "hb init";
 
             auto lap = std::make_shared<Lapua>(); PLOGV << "lapua init";
             auto obsBypass = std::make_shared<OBSBypassManager>(d3d, settings->OBSBypassToggle, exp); PLOGV << "obsBypass init";
-            auto hideWatermark = std::make_shared<HideWatermarkManager>(settings->hideWatermark, exp); PLOGV << "hideWatermark init";
+            auto hideWatermark = std::make_shared<HideWatermarkManager>(settings->hideWatermark, settings->hideHUDToggle, exp); PLOGV << "hideWatermark init";
             d3d->beginHook();
 
             PLOG_INFO << "All services succesfully initialized! Entering main loop";

@@ -13,7 +13,15 @@ private:
 	std::weak_ptr<HCMInternalGUI> hcmInternalGUIWeak;
 
 	ScopedCallback<ToggleEvent> HideWatermarkToggleEventCallback;
+	ScopedCallback<ToggleEvent> HideHUDToggleEventCallback;
 	std::shared_ptr<BinarySetting<bool>> HideWatermarkToggle;
+	std::shared_ptr<BinarySetting<bool>> HideHUDToggle;
+
+	// Hide HUD hides the overlay's text too (messages, the collapsed tab): the same marker as a hidden watermark
+	void onHideHUDToggleEvent(bool& newValue)
+	{
+		Lapua::shouldRunForWatermark = (newValue || HideWatermarkToggle->GetValue()) && Lapua::lapuaGood && Lapua::lapuaGood2;
+	}
 
 	void onHideWatermarkToggleEvent(bool& newValue)
 	{
@@ -30,7 +38,7 @@ private:
 			}
 			else
 			{
-				Lapua::shouldRunForWatermark = false;
+				Lapua::shouldRunForWatermark = HideHUDToggle && HideHUDToggle->GetValue() && Lapua::lapuaGood && Lapua::lapuaGood2;
 			}
 		}
 		catch (HCMRuntimeException ex)
@@ -44,11 +52,13 @@ private:
 
 
 public:
-	HideWatermarkManager(std::shared_ptr<BinarySetting<bool>> toggle, std::shared_ptr<RuntimeExceptionHandler> exp)
+	HideWatermarkManager(std::shared_ptr<BinarySetting<bool>> toggle, std::shared_ptr<BinarySetting<bool>> hideHUD, std::shared_ptr<RuntimeExceptionHandler> exp)
 		:
 		HideWatermarkToggle(toggle),
+		HideHUDToggle(hideHUD),
 		runtimeExceptions(exp),
-		HideWatermarkToggleEventCallback(toggle->valueChangedEvent, [this](bool& n) { onHideWatermarkToggleEvent(n); })
+		HideWatermarkToggleEventCallback(toggle->valueChangedEvent, [this](bool& n) { onHideWatermarkToggleEvent(n); }),
+		HideHUDToggleEventCallback(hideHUD->valueChangedEvent, [this](bool& n) { onHideHUDToggleEvent(n); })
 	{}
 
 };

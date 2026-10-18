@@ -70,7 +70,9 @@ public:
 	std::shared_ptr<ActionEvent> h2pFlyHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pDisableAIHotkeyEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pForgeBounceHotkeyEvent = std::make_shared<ActionEvent>();
-	
+	std::shared_ptr<ActionEvent> h2pWorldLinesHotkeyEvent = std::make_shared<ActionEvent>();
+	std::shared_ptr<ActionEvent> h2pJumpSpotsHotkeyEvent = std::make_shared<ActionEvent>();
+
 	
 
 	
@@ -607,13 +609,26 @@ public:
 		(false, [](bool in) { return true; }, nameof(h2pFlyToggle));
 	std::shared_ptr<BinarySetting<float>> h2pFlySpeed = std::make_shared<BinarySetting<float>>
 		(8.f, [](float in) { return in >= 0.5f && in <= 100.f; }, nameof(h2pFlySpeed));
+	// the Fly hotkey flies only while it is held (instead of switching fly on and off)
+	std::shared_ptr<BinarySetting<bool>> h2pFlyHoldToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pFlyHoldToggle));
 	std::shared_ptr<BinarySetting<bool>> h2pCalloutsToggle = std::make_shared<BinarySetting<bool>>
 		(true, [](bool in) { return true; }, nameof(h2pCalloutsToggle)); // the map window also speaks its call-outs
+	// Map grid / Jump spots (PoorboyWorldLines): the map's collision edges and the jump-spot marks drawn into the game
+	// view by the overlay; saved, start off
+	std::shared_ptr<BinarySetting<bool>> h2pWorldLinesToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pWorldLinesToggle));
+	std::shared_ptr<BinarySetting<bool>> h2pJumpSpotsToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pJumpSpotsToggle));
+	// the map grid's line width (pixels at 1080 lines) and opacity
+	std::shared_ptr<BinarySetting<float>> h2pGridWidth = std::make_shared<BinarySetting<float>>
+		(1.f, [](float in) { return in >= 0.25f && in <= 4.f; }, nameof(h2pGridWidth));
+	std::shared_ptr<BinarySetting<float>> h2pGridOpacity = std::make_shared<BinarySetting<float>>
+		(0.6f, [](float in) { return in >= 0.05f && in <= 1.f; }, nameof(h2pGridOpacity));
 	std::shared_ptr<BinarySetting<int>> pcmTheme = std::make_shared<BinarySetting<int>>
 		(0, [](int in) { return in >= 0 && in <= 3; }, nameof(pcmTheme)); // PCMTheme::Style
 	std::shared_ptr<ActionEvent> h2pArmEvent = std::make_shared<ActionEvent>();          // button and hotkey: the armed state now
 	std::shared_ptr<ActionEvent> h2pOpenMapWindowEvent = std::make_shared<ActionEvent>();
-	std::shared_ptr<ActionEvent> h2pOpenWorldLinesEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> h2pCloseHelpersEvent = std::make_shared<ActionEvent>();
 	std::shared_ptr<ActionEvent> spotSaveEvent = std::make_shared<ActionEvent>();        // button and hotkey: Save spot
 	std::shared_ptr<ActionEvent> spotBackEvent = std::make_shared<ActionEvent>();        // button and hotkey: Back to spot
@@ -2263,7 +2278,12 @@ public:
 		h2pNoFallDeathsToggle,
 		h2pForgeBounceToggle,
 		h2pFlySpeed,
+		h2pFlyHoldToggle,
 		h2pCalloutsToggle,
+		h2pWorldLinesToggle,
+		h2pJumpSpotsToggle,
+		h2pGridWidth,
+		h2pGridOpacity,
 		pcmTheme,
 
 	};

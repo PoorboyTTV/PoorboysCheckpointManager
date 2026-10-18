@@ -193,7 +193,7 @@ void HCMInternalGUI::primaryRender()
 	mWindowSize.y = (minimumWindowSize.y > totalContentHeight ? totalContentHeight : minimumWindowSize.y);
 
 	// check for hide-watermark toggle (only if window is collapsed)
-	if (!m_WindowOpen && mSettings->hideWatermark->GetValue() && Lapua::lapuaGood && Lapua::lapuaGood2)
+	if (!m_WindowOpen && (mSettings->hideWatermark->GetValue() || (mSettings->hideHUDToggle->GetValue() && Lapua::shouldRunForWatermark)) && Lapua::lapuaGood && Lapua::lapuaGood2)
 	{
 		// do nothing
 		LOG_ONCE(PLOG_DEBUG << "skipping rendering collapsed window due to hideWatermark setting");

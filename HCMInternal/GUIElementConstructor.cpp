@@ -132,8 +132,13 @@ private:
 						createNestedElement(GUIElementEnum::h2pStatusGUI),
 						createNestedElement(GUIElementEnum::h2pPhysicsToggleGUI),
 						createNestedElement(GUIElementEnum::h2pArmGUI),
+						createNestedElement(GUIElementEnum::h2pWorldLinesToggleGUI),
+						createNestedElement(GUIElementEnum::h2pGridWidthGUI),
+						createNestedElement(GUIElementEnum::h2pGridOpacityGUI),
+						createNestedElement(GUIElementEnum::h2pJumpSpotsToggleGUI),
 						createNestedElement(GUIElementEnum::h2pFlyToggleGUI),
 						createNestedElement(GUIElementEnum::h2pFlySpeedGUI),
+						createNestedElement(GUIElementEnum::h2pFlyHoldGUI),
 						createNestedElement(GUIElementEnum::h2pBarriersGUI),
 						createNestedElement(GUIElementEnum::h2pTick30ToggleGUI),
 						createNestedElement(GUIElementEnum::h2pCombosToggleGUI),
@@ -158,9 +163,29 @@ private:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<true>>
 						(game, ToolTipCollection("Puts the Halo 2 body in the armed state now (what standing up inside geometry does), so you can go straight to a bounce spot. Like Halo 2, it is lost if you stand still long enough to fall asleep. Bind it to a key or a controller button with the .. button"), RebindableHotkeyEnum::h2pArmHotkey, "Arm now", settings->h2pArmEvent));
 
+				case GUIElementEnum::h2pWorldLinesToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Draws every collision edge of the whole map into the game view, hidden behind walls: cyan = the map itself (structure), yellow = instanced geometry (rocks, pillars, props). Seams between polygons are where bounces come from. Drawn by this overlay inside the game's own frame (no extra window). Works with Halo 2 physics on or off (the mod is loaded to read the map). Saved; bind it with the .. button"), RebindableHotkeyEnum::h2pWorldLinesHotkey, "Map grid", settings->h2pWorldLinesToggle));
+
+				case GUIElementEnum::h2pGridWidthGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(0.25f, 4.f)>>
+						(game, ToolTipCollection("The map grid's line width in pixels (at 1080p; bigger screens scale it up)"), "Grid line width##h2p", settings->h2pGridWidth));
+
+				case GUIElementEnum::h2pGridOpacityGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(0.05f, 1.f)>>
+						(game, ToolTipCollection("How solid the map grid's lines are: 1 = solid, lower = see-through"), "Grid opacity##h2p", settings->h2pGridOpacity));
+
+				case GUIElementEnum::h2pJumpSpotsToggleGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
+						(game, ToolTipCollection("Halo 3's own maps: the scanned jump spots within 25 units: green = landing edge, magenta = where to take off (ring, arrow, number and stick: HOLD / LET GO / STRAFE, +late jump), orange = fast-drop seams. Works with Map grid on or off. Saved; bind it with the .. button"), RebindableHotkeyEnum::h2pJumpSpotsHotkey, "Jump spots", settings->h2pJumpSpotsToggle));
+
 				case GUIElementEnum::h2pFlyToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
 						(game, ToolTipCollection("Fly your player where you look: stick forward/back/sideways, jump up, crouch down, through walls. Works online in custom games (others see you fly) and with Halo 2 physics on or off. To watch without being seen, use Free Camera (Camera section). Always starts off; bind it with the .. button"), RebindableHotkeyEnum::h2pFlyHotkey, "Fly", settings->h2pFlyToggle));
+
+				case GUIElementEnum::h2pFlyHoldGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<false>>
+						(game, ToolTipCollection("The Fly hotkey flies only while you hold it: let go and you drop (instead of a press switching fly on and off). Bind the Fly hotkey with its .. button"), std::nullopt, "Hold the Fly key to fly##h2p", settings->h2pFlyHoldToggle));
 
 				case GUIElementEnum::h2pFlySpeedGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(1.f, 40.f)>>
@@ -196,11 +221,10 @@ private:
 
 				case GUIElementEnum::h2pHelpersSubheading:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISubHeading<false>>
-						(game, ToolTipCollection("The map window (armed state, call-outs, nearby bounce spots) and the lines drawn in the world"), "Helper windows", headerChildElements
+						(game, ToolTipCollection("The map window beside the game: armed state, call-outs, nearby bounce spots (the lines in the world are Map grid, above)"), "Helper windows", headerChildElements
 							{
 							createNestedElement(GUIElementEnum::h2pCalloutsToggleGUI),
 							createNestedElement(GUIElementEnum::h2pOpenMapWindowGUI),
-							createNestedElement(GUIElementEnum::h2pOpenWorldLinesGUI),
 							createNestedElement(GUIElementEnum::h2pCloseHelpersGUI),
 							}));
 
@@ -212,13 +236,9 @@ private:
 						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
 							(game, ToolTipCollection("Opens the map window beside the game"), std::nullopt, "Open map window", settings->h2pOpenMapWindowEvent));
 
-					case GUIElementEnum::h2pOpenWorldLinesGUI:
-						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
-							(game, ToolTipCollection("Draws the bounce lines into the game view"), std::nullopt, "Show lines in the world", settings->h2pOpenWorldLinesEvent));
-
 					case GUIElementEnum::h2pCloseHelpersGUI:
 						return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleButton<false>>
-							(game, ToolTipCollection("Closes the map window and the world lines"), std::nullopt, "Close helper windows", settings->h2pCloseHelpersEvent));
+							(game, ToolTipCollection("Closes the map window"), std::nullopt, "Close map window", settings->h2pCloseHelpersEvent));
 
 			case GUIElementEnum::controlHeadingGUI:
 				return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIHeading>

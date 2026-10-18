@@ -24,8 +24,13 @@
 	((h2pStatusGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pPhysicsToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pArmGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pWorldLinesToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pGridWidthGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pGridOpacityGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pJumpSpotsToggleGUI, (Halo3)))\
 	((h2pFlyToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pFlySpeedGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pFlyHoldGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pBarriersGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pTick30ToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pCombosToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
@@ -35,11 +40,10 @@
 	((spotSaveGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((spotBackGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pBottomlessClipGUI, (Halo3, Halo3ODST, HaloReach)))\
-	((h2pHelpersSubheading, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pHelpersSubheading, (Halo3, Halo3ODST)))\
 		((h2pCalloutsToggleGUI, (Halo3, Halo3ODST)))\
 		((h2pOpenMapWindowGUI, (Halo3, Halo3ODST)))\
-		((h2pOpenWorldLinesGUI, (Halo3, Halo3ODST, HaloReach)))\
-		((h2pCloseHelpersGUI, (Halo3, Halo3ODST, HaloReach)))\
+		((h2pCloseHelpersGUI, (Halo3, Halo3ODST)))\
 ((controlHeadingGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((pcmThemeGUI, (ALL_GAMES_AND_MAINMENU)))\
 	((toggleGUIHotkeyGUI, (ALL_GAMES_AND_MAINMENU)))\

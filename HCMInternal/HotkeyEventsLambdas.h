@@ -38,6 +38,8 @@ class HotkeyEventsLambdas
 	ScopedCallback<ActionEvent> mh2pFlyHotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pDisableAIHotkeyCallbackHandle;
 	ScopedCallback<ActionEvent> mh2pForgeBounceHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pWorldLinesHotkeyCallbackHandle;
+	ScopedCallback<ActionEvent> mh2pJumpSpotsHotkeyCallbackHandle;
 	
 
 public:
@@ -72,7 +74,9 @@ public:
 		mh2pNoFallDeathsHotkeyCallbackHandle(settings->h2pNoFallDeathsHotkeyEvent, [boolsetting = settings->h2pNoFallDeathsToggle]() { boolsetting->flipBoolSetting(); }),
 		mh2pFlyHotkeyCallbackHandle(settings->h2pFlyHotkeyEvent, [boolsetting = settings->h2pFlyToggle]() { boolsetting->flipBoolSetting(); }),
 		mh2pDisableAIHotkeyCallbackHandle(settings->h2pDisableAIHotkeyEvent, [boolsetting = settings->h2pDisableAIToggle]() { boolsetting->flipBoolSetting(); }),
-		mh2pForgeBounceHotkeyCallbackHandle(settings->h2pForgeBounceHotkeyEvent, [boolsetting = settings->h2pForgeBounceToggle]() { boolsetting->flipBoolSetting(); })
+		mh2pForgeBounceHotkeyCallbackHandle(settings->h2pForgeBounceHotkeyEvent, [boolsetting = settings->h2pForgeBounceToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pWorldLinesHotkeyCallbackHandle(settings->h2pWorldLinesHotkeyEvent, [boolsetting = settings->h2pWorldLinesToggle]() { boolsetting->flipBoolSetting(); }),
+		mh2pJumpSpotsHotkeyCallbackHandle(settings->h2pJumpSpotsHotkeyEvent, [boolsetting = settings->h2pJumpSpotsToggle]() { boolsetting->flipBoolSetting(); })
 		
 
 	{ PLOG_DEBUG << "HotkeyEvents con"; }

@@ -128,6 +128,8 @@ h2pArmHotkey, \
 h2pFlyHotkey, \
 h2pDisableAIHotkey, \
 h2pForgeBounceHotkey, \
+h2pWorldLinesHotkey, \
+h2pJumpSpotsHotkey, \
 spotSaveHotkey, \
 spotBackHotkey
 

@@ -133,6 +133,11 @@ private:
 
 
 		LOG_ONCE(PLOG_DEBUG << "Rendering displayPlayerInfo data");
+		{
+			// Hide HUD hides this text too
+			auto settings = settingsWeak.lock();
+			if (settings && settings->hideHUDToggle->GetValue()) return;
+		}
 		try
 		{
 			// select which data string to render

@@ -126,6 +126,9 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 	{GUIElementEnum::h2pFlySpeedGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
+	{GUIElementEnum::h2pFlyHoldGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
 	{GUIElementEnum::h2pBarriersGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
@@ -153,7 +156,16 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 	{GUIElementEnum::h2pOpenMapWindowGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
-	{GUIElementEnum::h2pOpenWorldLinesGUI,
+	{GUIElementEnum::h2pWorldLinesToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pJumpSpotsToggleGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pGridWidthGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
+	{GUIElementEnum::h2pGridOpacityGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
 	{GUIElementEnum::h2pCloseHelpersGUI,

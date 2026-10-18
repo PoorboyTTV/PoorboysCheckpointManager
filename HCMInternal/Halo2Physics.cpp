@@ -22,6 +22,8 @@ namespace
 		bool clip;           // h3sb_clip.txt: bottomless clip (HCM's Bottomless Clip toggle); with physics off too, like fly
 		bool ai;             // h3sb_ai.txt: Disable AI; with physics off too
 		bool forge;          // h3sb_forge.txt: Forge objects count as the map (with physics on)
+		bool lines;          // Map grid / Jump spots (PoorboyWorldLines) need the mod's world file: the mod stays loaded (observe mode when alone)
+		bool flyHold;        // "Hold the Fly key to fly": the mod stays loaded between holds (no unload and load at every press)
 	};
 
 	// The one mod in the process, whichever game's cheat instance asks.
@@ -30,9 +32,9 @@ namespace
 		std::mutex mMutex;
 		std::wstring mDir;                          // <PCM folder>\h3sb\ (with the trailing backslash)
 		std::atomic<bool> mUnloadAsked = false;     // mode 9 written: the dll takes itself out within a quarter second
-		PROCESS_INFORMATION mLive{}, mWorld{};      // helper windows started from here
+		PROCESS_INFORMATION mLive{};                // the map window, started from here
 		std::string mLastError;
-		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false, mSaidAI = false; // what the message log was last told (both games' instances call apply)
+		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false, mSaidAI = false, mSaidLines = false; // what the message log was last told (both games' instances call apply)
 		bool mSpotInUse = false;                    // Save spot was pressed: the mod stays loaded for it (observe mode when nothing else is on)
 
 		void writeSwitch(const wchar_t* name, int value)
@@ -53,17 +55,28 @@ namespace
 		{
 			std::string line;
 			if (o.physics != mSaidPhysics) line = o.physics ? "Halo 2 physics on" : "Halo 2 physics off: the game's own physics again";
-			if (o.fly != mSaidFly) line += std::string(line.empty() ? "" : ". ") + (o.fly ? "Fly on: stick where you look, jump up, crouch down" : "Fly off");
+			if (o.fly != mSaidFly && !o.flyHold) line += std::string(line.empty() ? "" : ". ") + (o.fly ? "Fly on: stick where you look, jump up, crouch down" : "Fly off");
 			if (o.clip != mSaidClip) line += std::string(line.empty() ? "" : ". ") + (o.clip ? "Bottomless Clip enabled." : "Bottomless Clip disabled");
 			mSaidPhysics = o.physics;
 			mSaidFly = o.fly;
 			if (o.ai != mSaidAI) line += std::string(line.empty() ? "" : ". ") + (o.ai ? "AI disabled" : "AI back on");
 			mSaidClip = o.clip;
 			mSaidAI = o.ai;
+			if (o.lines != mSaidLines) line += std::string(line.empty() ? "" : ". ") + (o.lines ? "Map lines on" : "Map lines off");
+			mSaidLines = o.lines;
 			return line;
 		}
 
 		static bool loaded() { return GetModuleHandleW(L"h3sb.dll") != nullptr; }
+
+		// the mod reads its switch files now instead of within the next quarter second (a build without h3sb_poke: as before)
+		static void poke()
+		{
+			HMODULE pinned = nullptr;
+			if (!GetModuleHandleExW(0, L"h3sb.dll", &pinned) || !pinned) return;
+			if (auto fn = (int (*)())GetProcAddress(pinned, "h3sb_poke")) fn();
+			FreeLibrary(pinned);
+		}
 
 		static bool running(PROCESS_INFORMATION& pi) { return pi.hProcess && WaitForSingleObject(pi.hProcess, 0) == WAIT_TIMEOUT; }
 
@@ -110,7 +123,7 @@ namespace
 		}
 
 		// the helpers close themselves when h3sb_helpers.stop is newer than they are (the Stop script's way: they may
-		// run as administrator, a closer that is not one cannot end them)
+		// run as administrator, a closer that is not one cannot end them); an old world-lines window goes too
 		void stopHelpersLocked()
 		{
 			if (!mDir.empty())
@@ -119,7 +132,6 @@ namespace
 				f << "stop asked by Poorboys Checkpoint Manager";
 			}
 			closeHandles(mLive);
-			closeHandles(mWorld);
 		}
 
 	public:
@@ -134,7 +146,7 @@ namespace
 		{
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return "";
-			if (!o.physics && !o.fly && !o.clip && !o.ai && !mSpotInUse)
+			if (!o.physics && !o.fly && !o.clip && !o.ai && !o.lines && !o.flyHold && !mSpotInUse)
 			{
 				if (loaded() && !mUnloadAsked)
 				{
@@ -155,8 +167,8 @@ namespace
 				if (loaded()) throw HCMRuntimeException(fail("Halo 2 physics: the mod did not unload; switch it on again in a moment"));
 			}
 			mUnloadAsked = false;
-			// fly, bottomless clip or the spot alone (physics off): the mod in observe mode with the game's own barriers,
-			// tick rate, melee and falls
+			// fly, bottomless clip, the map grid or the spot alone (physics off): the mod in observe mode with the game's own
+			// barriers, tick rate, melee and falls
 			writeSwitch(L"h3sb_tick.txt", o.physics && o.tick30 ? 30 : 60);
 			writeSwitch(L"h3sb_barriers.txt", o.physics ? std::clamp(o.barriers, 0, 3) : 0);
 			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
@@ -166,7 +178,11 @@ namespace
 			writeSwitch(L"h3sb_forge.txt", o.physics && o.forge ? 1 : 0);
 			writeFly(o.fly, o.flySpeed);
 			writeSwitch(L"h3sb_mode.txt", o.physics ? 3 : 0);
-			if (loaded()) return news(o);      // it reads the switches four times a second
+			if (loaded())
+			{
+				poke();                         // it reads the switches four times a second; now, for hold to fly
+				return news(o);
+			}
 			// a new session: the mod records every tick (about 120 MB per half hour), clear the last session's first
 			std::error_code ec;
 			for (auto& e : std::filesystem::directory_iterator(mDir, ec))
@@ -184,13 +200,6 @@ namespace
 			std::scoped_lock lock(mMutex);
 			if (mDir.empty()) return;
 			startHelper(mLive, L"live \"" + mDir + L".\" --with-game --data \"" + mDir + L"spots\"" + (callouts ? L"" : L" --no-sound"));
-		}
-
-		void openWorldLines()
-		{
-			std::scoped_lock lock(mMutex);
-			if (mDir.empty()) return;
-			startHelper(mWorld, L"world --folder \"" + mDir + L".\" --data \"" + mDir + L"spots\"");
 		}
 
 		void closeHelpers()
@@ -281,10 +290,10 @@ private:
 	std::shared_ptr<RuntimeExceptionHandler> runtimeExceptions;
 	std::weak_ptr<IMCCStateHook> mccStateHookWeak;
 
-	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback, mClipCallback, mAICallback, mForgeCallback;
+	ScopedCallback<ToggleEvent> mPhysicsCallback, mTick30Callback, mCombosCallback, mNoFallDeathsCallback, mFlyCallback, mClipCallback, mAICallback, mForgeCallback, mLinesCallback, mSpotsCallback, mFlyHoldCallback;
 	ScopedCallback<eventpp::CallbackList<void(float&)>> mFlySpeedCallback;
 	ScopedCallback<eventpp::CallbackList<void(int&)>> mBarriersCallback;
-	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mWorldLinesCallback, mCloseHelpersCallback;
+	ScopedCallback<ActionEvent> mArmCallback, mMapWindowCallback, mCloseHelpersCallback;
 	ScopedCallback<ActionEvent> mSpotSaveCallback, mSpotBackCallback;
 
 	H3sbOptions options()
@@ -293,7 +302,8 @@ private:
 		if (!s) throw HCMRuntimeException("Halo 2 physics: settings went away");
 		return H3sbOptions{ s->h2pPhysicsToggle->GetValue(), s->h2pBarriers->GetValue(), s->h2pTick30Toggle->GetValue(), s->h2pCombosToggle->GetValue(),
 			s->h2pNoFallDeathsToggle->GetValue(), s->h2pFlyToggle->GetValue(), s->h2pFlySpeed->GetValue(), s->bottomlessClipToggle->GetValue(),
-			s->h2pDisableAIToggle->GetValue(), s->h2pForgeBounceToggle->GetValue() };
+			s->h2pDisableAIToggle->GetValue(), s->h2pForgeBounceToggle->GetValue(), s->h2pWorldLinesToggle->GetValue() || s->h2pJumpSpotsToggle->GetValue(),
+			s->h2pFlyHoldToggle->GetValue() };
 	}
 
 	void say(const std::string& line)
@@ -388,11 +398,13 @@ public:
 		mClipCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->bottomlessClipToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mAICallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pDisableAIToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mForgeCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pForgeBounceToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mLinesCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pWorldLinesToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mSpotsCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pJumpSpotsToggle->valueChangedEvent, [this](bool&) { onChange(); }),
+		mFlyHoldCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pFlyHoldToggle->valueChangedEvent, [this](bool&) { onChange(); }),
 		mArmCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pArmEvent, [this]() { onArm(); }),
 		mMapWindowCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenMapWindowEvent, [this]() {
 			guarded([this]() { host().openMapWindow(mSettingsWeak.lock()->h2pCalloutsToggle->GetValue()); });
 			}),
-		mWorldLinesCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pOpenWorldLinesEvent, [this]() { guarded([]() { host().openWorldLines(); }); }),
 		mCloseHelpersCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->h2pCloseHelpersEvent, [this]() { host().closeHelpers(); }),
 		mSpotSaveCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->spotSaveEvent, [this]() { onSpotSave(); }),
 		mSpotBackCallback(dicon.Resolve<SettingsStateAndEvents>().lock()->spotBackEvent, [this]() { onSpotBack(); })

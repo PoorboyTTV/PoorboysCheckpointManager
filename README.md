@@ -6,6 +6,8 @@
 
 One zip, nothing to install. Windows, MCC on Steam (made for MCC 1.3528). Older versions and release notes: [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases).
 
+**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.1.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.1.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
+
 💬 **Need help, found a bug, or want something added?** Message Poorboy on Discord: **@poorboy**
 
 ---
@@ -30,6 +32,8 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 - **Barrier breaks**, as in MCC Halo 2: Halo 2's time-of-impact skip (TIM) and its back-stepping over-credit are reproduced. Bump a wall again and again next to a sharp corner, then walk into the other wall and you go through it (needs 30 tick; you come out armed).
 - **30 tick** (F9): the game and the Halo 2 physics run at 30 ticks a second, like Xbox Halo 2, which is what superbounces need. 60 = PC Halo 2 (no superbounces from ordinary heights). Switch any time.
 - **Arm now**: puts you in Halo 2's armed state without finding a crouch-stand spot. The status line shows whether you're armed and your speed.
+- **Armed = green radar dot** (Halo 3): while you're armed, your own dot in the middle of the motion tracker turns green instead of yellow. Like every Halo 3 tracker dot, it only shows while you're moving.
+- **Crouch at touchdown arms you**, as in Halo 2: press, release or tap crouch on the exact tick you land and the rebuilt body can't back-step out of the floor, so you're armed for the next landing (a small hop or nothing on that one).
 - **Explosions push the Halo 2 way**, with Halo 2's own numbers: grenade and rocket jumps feel like Halo 2.
 - **Solid objects**: ride lifts and man cannons, stand on and push crates, all as Halo 2 does it.
 
@@ -39,12 +43,14 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 
 ### Practice tools
 - **Save spot / Back to spot**: back exactly where you saved: place, speed, view, crouch and armed state. Safe online (only your player moves).
-- **Fly**: your player flies where you look, through walls (others see you). Speed slider next to it.
+- **Fly**: your player flies where you look, through walls (others see you). Speed slider next to it. Tick **Hold the Fly key to fly** to fly only while you hold its hotkey.
 - **Barriers** (F7): soft ceilings off, out-of-bounds kill off, kill volumes off (in Reach also its out-of-the-map timers).
 - **No falling deaths** (F11): falls and hard landings never hurt (in Reach also its landing and impact damage).
 - **Bottomless Clip**: your magazine never empties, plasma batteries don't drain, grenades never run out.
 - **Disable AI**: enemies and allies stand still and don't shoot, for campaign practice and videos.
-- **Helper windows**: a map window with call-outs, and lines drawn in the world (floor seams, where bounces come from).
+- **Map grid**: every collision edge of the whole map drawn into the game view, hidden behind walls: cyan = the map itself, yellow = instanced geometry (rocks, pillars, props). The seams are where bounces come from. Drawn by the overlay inside the game's frame, so it doesn't lag the game; switch it on and off (bind it with its .. button). Sliders for the line width and opacity; players (yours in third person too) are drawn in front of the lines.
+- **Jump spots** (Halo 3's own maps): the scanned bounce spots near you: green landing edges, magenta take-off marks with the stick recipe, orange fast-drop seams.
+- **Helper windows**: a map window with call-outs (Halo 3, ODST).
 
 ### Halo: Reach
 Everything above, plus Reach's armor abilities working with Halo 2 physics:

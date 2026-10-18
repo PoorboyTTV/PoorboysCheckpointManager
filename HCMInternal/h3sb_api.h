@@ -13,6 +13,8 @@
 //     h3sb_clip.txt      1 bottomless clip and grenades for this machine's player (any mode, 0 too), 0 the game's own
 //     h3sb_ai.txt        1 the AI switched off (ai_enable false; any mode, 0 too), 0 the game's own
 //     h3sb_forge.txt     1 Forge objects are part of the map for the Halo 2 body (Halo 3, Reach), 0 Halo 2's own rule
+//     h3sb_radar.txt     1 or no file: this machine's player's own motion-tracker dot is green while armed (the game's
+//                        crosshair-friendly green), "1 RRGGBB" in that colour, 0 the game's own colours
 #pragma once
 
 #include <stdint.h>
@@ -46,6 +48,23 @@ struct H3sbStatus {
 // this player moves (nothing is rolled back), so it is safe online. 1 = queued, -1 = what is not 1 or 2. Whether there
 // is a spot to go back to: H3sbStatus.spot. The view direction is the host's to save and put back.
 //     typedef int (*H3sbSpotFn)(int);  GetProcAddress(h3sb, "h3sb_spot")
+
+// h3sb_bipeds(out, max): every biped of the game (players, AI, bodies) as the last tick left them, up to max; returns
+// how many (0 = none, or no tick in the last second). For a host that draws into the game view (the map grid keeps
+// the lines off people).
+//     typedef int (*H3sbBipedsFn)(H3sbBiped *, int);  GetProcAddress(h3sb, "h3sb_bipeds")
+struct H3sbBiped {
+    float feet[3];          // the object's position (its feet)
+    float velocity[3];      // world units a second (to carry the position forward between ticks)
+    float crouch;           // 0 standing .. 1 crouched
+    float age;              // seconds since the tick these come from
+    int32_t local;          // 1 = this machine's player
+    int32_t reserved;
+};
+
+// h3sb_poke(): the switch files were just written - read them now instead of within the next quarter second (hold to
+// fly). 1 = woken.
+//     typedef int (*H3sbPokeFn)();  GetProcAddress(h3sb, "h3sb_poke")
 
 #ifdef H3SB_EXPORTS
 extern "C" __declspec(dllexport) int h3sb_status(H3sbStatus *out);

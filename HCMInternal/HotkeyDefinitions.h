@@ -50,6 +50,7 @@ public:
 	//friend class HotkeyManager; 
 	const std::map<RebindableHotkeyEnum, std::shared_ptr<EventOnPressHotkey>>& getAllEventOnPressHotkeys() { return allEventOnPressHotkeys; }
 	const std::map<RebindableHotkeyEnum, std::shared_ptr<RebindableHotkey>>& getAllRebindableHotkeys() { return allRebindableHotkeys; }
+	const std::shared_ptr<SettingsStateAndEvents>& settings() const { return mSettings; }
 
 private:
 	std::shared_ptr< SettingsStateAndEvents> mSettings;
@@ -524,6 +525,14 @@ private:
 
 		initEventOnPressHotkey(h2pForgeBounceHotkey,
 		mSettings->h2pForgeBounceHotkeyEvent,
+		vsk{}),
+
+		initEventOnPressHotkey(h2pWorldLinesHotkey,
+		mSettings->h2pWorldLinesHotkeyEvent,
+		vsk{}),
+
+		initEventOnPressHotkey(h2pJumpSpotsHotkey,
+		mSettings->h2pJumpSpotsHotkeyEvent,
 		vsk{}),
 
 		// Save spot / Back to spot (Poorboy's Mods): unbound like the two above

@@ -492,6 +492,10 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClInclude Include="PoorboyLogo.h" />
     <ClInclude Include="PoorboyLogoData.h" />
     <ClInclude Include="PoorboyLogoArt.h" />
+    <ClInclude Include="PoorboyWorldLines.h" />
+    <ClInclude Include="WorldLinesScene.h" />
+    <ClInclude Include="WorldLinesGpu.h" />
+    <ClInclude Include="WorldLinesShaders.h" />
     <ClInclude Include="h3sb_api.h" />
     <ClInclude Include="NullSmoother.h" />
     <ClInclude Include="ObjectTypes.h" />
@@ -767,6 +771,15 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClCompile Include="Halo2Physics.cpp" />
     <ClCompile Include="PCMTheme.cpp" />
     <ClCompile Include="PoorboyLogo.cpp" />
+    <ClCompile Include="PoorboyWorldLines.cpp" />
+    <ClCompile Include="WorldLinesScene.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="WorldLinesGpu.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="PauseGame.cpp" />
     <ClCompile Include="ProggyVectorRegularFont.cpp" />
     <ClCompile Include="BinarySetting.cpp" />
