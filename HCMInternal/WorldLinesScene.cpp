@@ -346,6 +346,7 @@ namespace worldlines
 		std::unordered_map<QKey, uint32_t, QHash> ids;
 		std::vector<uint32_t> ringStart, ring;                 // welded vertex ids per polygon
 		std::vector<uint8_t> kind;                            // EdgeKind of each polygon
+		std::vector<V3> normal;                               // each polygon's plane normal
 		ringStart.reserve(npoly + 1);
 		kind.reserve(npoly);
 		for (uint32_t i = 0; i < npoly; i++)
@@ -357,9 +358,11 @@ namespace worldlines
 			r.get<int16_t>();                   // material
 			const uint16_t nv = r.get<uint16_t>();
 			r.get<uint16_t>();                  // plane
-			r.get<float>();                     // normal
-			r.get<float>();
-			r.get<float>();
+			V3 n;
+			n.x = r.get<float>();               // normal
+			n.y = r.get<float>();
+			n.z = r.get<float>();
+			normal.push_back(n);
 			if (version >= 2) r.get<uint32_t>();     // surface index
 			ringStart.push_back((uint32_t)ring.size());
 			r.need((size_t)nv * 12);
@@ -399,13 +402,19 @@ namespace worldlines
 		std::sort(edges.begin(), edges.end(), [](const EdgeRec& x, const EdgeRec& y) {
 			return x.lo != y.lo ? x.lo < y.lo : x.hi != y.hi ? x.hi < y.hi : x.face < y.face;
 			});
-		for (size_t s = 0; s < edges.size(); s++)
-			if (s == 0 || edges[s].lo != edges[s - 1].lo || edges[s].hi != edges[s - 1].hi)
-			{
-				auto& list = scene->edgeIndex[kind[edges[s].face]];
-				list.push_back(edges[s].lo);
-				list.push_back(edges[s].hi);
-			}
+		for (size_t s = 0; s < edges.size();)
+		{
+			// the polygons that share this edge: its normal is theirs, averaged (the side a line is lifted off to)
+			size_t e = s;
+			V3 sum{};
+			for (; e < edges.size() && edges[e].lo == edges[s].lo && edges[e].hi == edges[s].hi; e++) sum = sum + normal[edges[e].face];
+			const float len = length(sum);
+			const int k = kind[edges[s].face];
+			scene->edgeIndex[k].push_back(edges[s].lo);
+			scene->edgeIndex[k].push_back(edges[s].hi);
+			scene->edgeNormal[k].push_back(len > 1e-6f ? sum * (1.f / len) : normal[edges[s].face]);
+			s = e;
+		}
 
 		// fan triangles: the depth pass, and the line-of-sight test of the labels
 		std::vector<V3> lo, hi;

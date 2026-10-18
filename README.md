@@ -6,7 +6,7 @@
 
 One zip, nothing to install. Windows, MCC on Steam (made for MCC 1.3528). Older versions and release notes: [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases).
 
-**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.1.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.1.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
+**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.2.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.2.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
 
 💬 **Need help, found a bug, or want something added?** Message Poorboy on Discord: **@poorboy**
 
@@ -35,20 +35,20 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 - **Armed = green radar dot** (Halo 3): while you're armed, your own dot in the middle of the motion tracker turns green instead of yellow. Like every Halo 3 tracker dot, it only shows while you're moving.
 - **Crouch at touchdown arms you**, as in Halo 2: press, release or tap crouch on the exact tick you land and the rebuilt body can't back-step out of the floor, so you're armed for the next landing (a small hop or nothing on that one).
 - **Explosions push the Halo 2 way**, with Halo 2's own numbers: grenade and rocket jumps feel like Halo 2.
-- **Solid objects**: ride lifts and man cannons, stand on and push crates, all as Halo 2 does it.
+- **Solid objects**: ride lifts and man cannons (walk in or jump in), stand on and push crates, all as Halo 2 does it.
 
 ### Halo 2 combat
-- **Button combos** (F10): BXR, BXB, double shot, the melee lock, YX (X during a weapon switch swaps at once) and the plasma pistol double grenade.
+- **Button combos** (F10): BXR, BXB, **double shot** (R, R, X: the second R on the tick right after the burst's last round, then X), **quad shot** (R, R, X, Y, Y, R, R, X: YY drops the switch and gives the same gun back at once), the melee lock, YX (X during a weapon switch swaps at once) and the plasma pistol double grenade (Halo 3, ODST; Reach has the melee combos).
 - **Halo 2 lunges** (with Halo 2 physics on): melee and sword lunges fly straight at the target with no gravity and keep going when you cancel, so **butterflying** works, and **sword flying** (rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked).
 
 ### Practice tools
 - **Save spot / Back to spot**: back exactly where you saved: place, speed, view, crouch and armed state. Safe online (only your player moves).
-- **Fly**: your player flies where you look, through walls (others see you). Speed slider next to it. Tick **Hold the Fly key to fly** to fly only while you hold its hotkey.
+- **Fly**: your player flies where you look, through walls (others see you). Speed slider next to it. Tick **Hold the Fly key to fly** to fly only while you hold its hotkey. Armed before a flight = armed where it ends.
 - **Barriers** (F7): soft ceilings off, out-of-bounds kill off, kill volumes off (in Reach also its out-of-the-map timers).
 - **No falling deaths** (F11): falls and hard landings never hurt (in Reach also its landing and impact damage).
 - **Bottomless Clip**: your magazine never empties, plasma batteries don't drain, grenades never run out.
 - **Disable AI**: enemies and allies stand still and don't shoot, for campaign practice and videos.
-- **Map grid**: every collision edge of the whole map drawn into the game view, hidden behind walls: cyan = the map itself, yellow = instanced geometry (rocks, pillars, props). The seams are where bounces come from. Drawn by the overlay inside the game's frame, so it doesn't lag the game; switch it on and off (bind it with its .. button). Sliders for the line width and opacity; players (yours in third person too) are drawn in front of the lines.
+- **Map grid**: every collision edge of the whole map drawn into the game view, hidden behind walls: cyan = the map itself, yellow = instanced geometry (rocks, pillars, props). The seams are where bounces come from. In Halo 3 it is drawn inside the game's own render, so walls, people, vehicles and your first-person gun hide it (ODST and Reach: drawn over the frame, people kept in front). It doesn't lag the game; switch it on and off (bind it with its .. button). Sliders for the line width and opacity.
 - **Jump spots** (Halo 3's own maps): the scanned bounce spots near you: green landing edges, magenta take-off marks with the stick recipe, orange fast-drop seams.
 - **Helper windows**: a map window with call-outs (Halo 3, ODST).
 
@@ -113,6 +113,7 @@ Questions, problems, or ideas for something to add: Poorboy on Discord, **@poorb
 - **Poorboy**: Poorboys Checkpoint Manager and its Halo 2 physics for Halo 3, ODST and Reach: superbounces, movement and jump, barrier breaks, button combos and lunges, solid objects, Reach's armor abilities, Theatre replays, and all the switches above.
 - **Burnt-o (Maurice Dix) and Harc**: [Halo Checkpoint Manager](https://github.com/Burnt-o/HaloCheckpointManager), which all of this is built on: dumping and injecting checkpoints, the checkpoint library, the in-game overlay, the hotkey system and every practice cheat (invulnerability, speedhack, teleport, free camera and the rest). Everything that is not the Halo 2 physics is their work.
 - **Harc**: the research on Halo 2's Havok back-stepping and TIM over-credit that made barrier breaks possible.
+- **Jagged**: his H3 Collision Viewer's way of drawing inside Halo 3's own view render (shared with Poorboy), which lets the map grid hide behind people and your first-person gun.
 - Third-party libraries: see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
 ---

@@ -495,6 +495,8 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClInclude Include="PoorboyWorldLines.h" />
     <ClInclude Include="WorldLinesScene.h" />
     <ClInclude Include="WorldLinesGpu.h" />
+    <ClInclude Include="WorldLinesEmit.h" />
+    <ClInclude Include="WorldLinesEngine.h" />
     <ClInclude Include="WorldLinesShaders.h" />
     <ClInclude Include="h3sb_api.h" />
     <ClInclude Include="NullSmoother.h" />
@@ -777,6 +779,14 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="WorldLinesGpu.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="WorldLinesEmit.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="WorldLinesEngine.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

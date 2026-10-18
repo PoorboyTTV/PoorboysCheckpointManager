@@ -6,6 +6,8 @@
 // cameras stand behind the first jump-spot take-off marks, or at a few floor points.
 #define _CRT_SECURE_NO_WARNINGS
 #include "../../HCMInternal/WorldLinesGpu.h"
+#include "../../HCMInternal/WorldLinesEmit.h"
+#include "../../HCMInternal/WorldLinesEngine.h"
 
 #include <d3dcompiler.h>
 #include <chrono>
@@ -14,6 +16,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cstring>
+#include <unordered_map>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -52,6 +56,120 @@ float4 ps(V i) : SV_Target {
 		c.ty = std::tan(vfov / 2);
 		c.tx = c.ty * aspect;
 		return c;
+	}
+
+
+	// ---- a stand-in for Halo 3's debug drawer (c_rasterizer), for WorldLinesEngine offline -------------------------
+	namespace fake
+	{
+		ID3D11DeviceContext* ctx = nullptr;
+		ID3D11VertexShader* vs = nullptr;
+		ID3D11PixelShader* ps = nullptr;
+		ID3D11InputLayout* layout = nullptr;
+		ID3D11Buffer* cb = nullptr;
+		ID3D11Buffer* vb = nullptr;                 // its "draw_primitive_up" buffer
+		ID3D11DepthStencilState* read = nullptr;    // z mode 1: tested, not written
+		ID3D11DepthStencilState* write = nullptr;   // the scene's own drawing (the gun)
+		ID3D11BlendState* blend = nullptr;          // alpha blending
+		ID3D11RasterizerState* raster = nullptr;
+		int cullMode = 4 * 2, cullChanged = 0;
+		int zMode = 0;
+		const char* hlsl = R"(
+cbuffer View : register(b0) { float4 camPos; float4 right; float4 up; float4 fwd; float4 tn; };
+struct VIn { float3 p : POSITION; float4 c : COLOR; };
+struct VOut { float4 pos : SV_Position; float4 c : COLOR; };
+VOut vs(VIn i) {
+    float3 d = i.p - camPos.xyz;
+    float vz = dot(d, fwd.xyz);
+    VOut o;
+    o.pos = float4(dot(d, right.xyz) / tn.x, dot(d, up.xyz) / tn.y, vz * tn.w / (tn.w - tn.z) - tn.z * tn.w / (tn.w - tn.z), vz);
+    o.c = i.c;
+    return o;
+}
+float4 ps(VOut i) : SV_Target { return i.c; }
+)";
+		bool setExplicitShaders(uint32_t, uint32_t, uint32_t, uint32_t, void**)
+		{
+			ctx->VSSetShader(vs, nullptr, 0);
+			ctx->PSSetShader(ps, nullptr, 0);
+			ctx->IASetInputLayout(layout);
+			ctx->VSSetConstantBuffers(0, 1, &cb);
+			ctx->RSSetState(raster);
+			const float f[4] = { 0, 0, 0, 0 };
+			ctx->OMSetBlendState(blend, f, 0xFFFFFFFF);
+			return true;
+		}
+		void setZBufferMode(int mode) { zMode = mode; }
+		void drawPrimitiveUp(uint32_t type, uint32_t count, const void* data, uint32_t stride)
+		{
+			ctx->OMSetDepthStencilState(zMode == 1 ? read : write, 0);
+			const uint32_t per = type == 3 ? 3 : 2;
+			D3D11_MAPPED_SUBRESOURCE m;
+			if (FAILED(ctx->Map(vb, 0, D3D11_MAP_WRITE_DISCARD, 0, &m))) return;
+			std::memcpy(m.pData, data, (size_t)count * per * stride);
+			ctx->Unmap(vb, 0);
+			const UINT off = 0;
+			ctx->IASetVertexBuffers(0, 1, &vb, &stride, &off);
+			ctx->IASetPrimitiveTopology(type == 3 ? D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST : D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+			ctx->Draw(count * per, 0);
+		}
+		bool init(ID3D11Device* dev, ID3D11DeviceContext* c)
+		{
+			ctx = c;
+			ID3DBlob *vsb = nullptr, *psb = nullptr, *err = nullptr;
+			if (FAILED(D3DCompile(hlsl, std::strlen(hlsl), "fake", nullptr, nullptr, "vs", "vs_5_0", 0, 0, &vsb, &err)) ||
+				FAILED(D3DCompile(hlsl, std::strlen(hlsl), "fake", nullptr, nullptr, "ps", "ps_5_0", 0, 0, &psb, &err)))
+			{
+				if (err) std::printf("%s\n", (const char*)err->GetBufferPointer());
+				return false;
+			}
+			dev->CreateVertexShader(vsb->GetBufferPointer(), vsb->GetBufferSize(), nullptr, &vs);
+			dev->CreatePixelShader(psb->GetBufferPointer(), psb->GetBufferSize(), nullptr, &ps);
+			const D3D11_INPUT_ELEMENT_DESC el[2] = { { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 } };
+			dev->CreateInputLayout(el, 2, vsb->GetBufferPointer(), vsb->GetBufferSize(), &layout);
+			D3D11_BUFFER_DESC bd{};
+			bd.ByteWidth = 80;
+			bd.Usage = D3D11_USAGE_DYNAMIC;
+			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			dev->CreateBuffer(&bd, nullptr, &cb);
+			bd.ByteWidth = 1024 * 3 * 16;
+			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			dev->CreateBuffer(&bd, nullptr, &vb);
+			D3D11_DEPTH_STENCIL_DESC dd{};
+			dd.DepthEnable = TRUE;
+			dd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+			dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			dev->CreateDepthStencilState(&dd, &read);
+			dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dev->CreateDepthStencilState(&dd, &write);
+			D3D11_BLEND_DESC bl{};
+			bl.RenderTarget[0].BlendEnable = TRUE;
+			bl.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+			bl.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+			bl.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+			bl.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+			bl.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+			bl.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			bl.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+			dev->CreateBlendState(&bl, &blend);
+			D3D11_RASTERIZER_DESC rd{};
+			rd.FillMode = D3D11_FILL_SOLID;
+			rd.CullMode = D3D11_CULL_NONE;
+			rd.DepthClipEnable = TRUE;
+			dev->CreateRasterizerState(&rd, &raster);
+			return vs && ps && layout && cb && vb && read && write && blend && raster;
+		}
+		void setView(const Camera& cam)
+		{
+			D3D11_MAPPED_SUBRESOURCE m;
+			if (FAILED(ctx->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &m))) return;
+			const float k[20] = { cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.right.x, cam.right.y, cam.right.z, 0, cam.up.x, cam.up.y, cam.up.z, 0,
+				cam.fwd.x, cam.fwd.y, cam.fwd.z, 0, cam.tx, cam.ty, 0.0078125f, 4096.f };
+			std::memcpy(m.pData, k, sizeof(k));
+			ctx->Unmap(cb, 0);
+		}
 	}
 
 	bool writeBmp(const char* path, const uint8_t* rgba, UINT pitch, int w, int h)
@@ -361,6 +479,212 @@ int main(int argc, char** argv)
 			std::printf("FAIL: lines drawn over a player\n");
 			return 1;
 		}
+	}
+	// the Halo 3 path (WorldLinesEmit: the lines the game's own debug drawer gets): every map edge with an end on screen
+	// and within the draw distance comes out, from the cells near the camera; and how long a frame's lines take
+	{
+		EdgeCells cells;
+		const auto c0 = std::chrono::steady_clock::now();
+		cells.build(*scene);
+		const double buildMs = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - c0).count();
+		size_t total = scene->edgeIndex[kStructure].size() / 2 + scene->edgeIndex[kInstance].size() / 2;
+		EmitScratch scratch;
+		Emitted out;
+		EmitOptions eo;
+		eo.depthPull = 0.f;
+		eo.maxDistance = 80.f;
+		int missed = 0, views = 0;
+		size_t emittedMax = 0, mustMax = 0;
+		double emitMs = 0;
+		std::vector<Pose> views2 = poses;
+		for (size_t i = 0; views2.size() < 24 && i < scene->triIndex.size() / 3; i += scene->triIndex.size() / 3 / 20 + 1)
+		{
+			const V3 a = scene->verts[scene->triIndex[i * 3]], b = scene->verts[scene->triIndex[i * 3 + 1]], c = scene->verts[scene->triIndex[i * 3 + 2]];
+			views2.push_back({ (a + b + c) * (1.f / 3) + V3{ 0, 0, 0.7f }, 37.f * (float)i, -10.f });
+		}
+		auto key = [](V3 p) {
+			uint32_t x, y, z;
+			std::memcpy(&x, &p.x, 4), std::memcpy(&y, &p.y, 4), std::memcpy(&z, &p.z, 4);
+			return ((uint64_t)x * 0x9E3779B1u) ^ ((uint64_t)y << 21) ^ ((uint64_t)z * 0x85EBCA77u);
+			};
+		auto emitCam = [&](const Camera& cam) {
+			EmitCamera ec;
+			ec.pos = cam.pos, ec.fwd = cam.fwd, ec.up = cam.up, ec.left = cross(cam.up, cam.fwd);
+			ec.vfov = vfov, ec.hfov = 2.f * std::atan(std::tan(vfov / 2) * (float)W / H), ec.heightPx = (float)H, ec.aspect = (float)W / H;
+			return ec;
+			};
+		for (const Pose& pose : views2)
+		{
+			const Camera cam = makeCamera(pose.eye, pose.yaw, pose.pitch, vfov, (float)W / H);
+			const auto te = std::chrono::steady_clock::now();
+			emit(*scene, cells, emitCam(cam), eo, scratch, out);
+			emitMs += std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - te).count();
+			views++;
+			// the emitted lines, as point pairs (no pull: they are the scene's own points)
+			std::unordered_map<uint64_t, int> got;
+			for (size_t v = 0; v + 1 < out.lines.size(); v += 2)
+			{
+				const V3 a{ out.lines[v].x, out.lines[v].y, out.lines[v].z }, b{ out.lines[v + 1].x, out.lines[v + 1].y, out.lines[v + 1].z };
+				got[key(a) ^ (key(b) * 3)]++;
+				got[key(b) ^ (key(a) * 3)]++;
+			}
+			size_t must = 0;
+			for (int k = 0; k < kEdgeKinds; k++)
+				for (size_t e = 0; e + 1 < scene->edgeIndex[k].size(); e += 2)
+				{
+					const V3 a = scene->verts[scene->edgeIndex[k][e]], b = scene->verts[scene->edgeIndex[k][e + 1]];
+					if (length(a - cam.pos) > 80.f && length(b - cam.pos) > 80.f) continue;
+					float x, y;
+					const bool onA = toScreen(cam, a, (float)W, (float)H, x, y) && x >= 0 && x < W && y >= 0 && y < H;
+					const bool onB = toScreen(cam, b, (float)W, (float)H, x, y) && x >= 0 && x < W && y >= 0 && y < H;
+					if (!onA && !onB) continue;
+					must++;
+					if (!got.count(key(a) ^ (key(b) * 3))) missed++;
+				}
+			emittedMax = (std::max)(emittedMax, out.lines.size() / 2);
+			mustMax = (std::max)(mustMax, must);
+		}
+		// whole map (draw distance 0): the worst case
+		eo.maxDistance = 0.f;
+		const Camera cam0 = makeCamera(views2[0].eye, views2[0].yaw, views2[0].pitch, vfov, (float)W / H);
+		const auto t1 = std::chrono::steady_clock::now();
+		emit(*scene, cells, emitCam(cam0), eo, scratch, out);
+		const double wholeMs = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t1).count();
+		const size_t wholeLines = out.lines.size() / 2;
+		// wide lines: two triangles per line
+		eo.maxDistance = 80.f;
+		eo.gridWidth = 2.5f;
+		emit(*scene, cells, emitCam(cam0), eo, scratch, out);
+		const bool ribbons = out.lines.empty() && !out.tris.empty() && out.tris.size() % 6 == 0;
+		std::printf("  game's own drawer: %zu edges, cells built in %.1f ms; %d views: %d on-screen edges missing (most on screen %zu, emitted %zu), %.3f ms a frame at 80 units; whole map %.2f ms (%zu lines); wide lines as ribbons %d\n",
+			total, buildMs, views, missed, mustMax, emittedMax, emitMs / (std::max)(views, 1), wholeMs, wholeLines, ribbons);
+		if (missed != 0 || !ribbons)
+		{
+			std::printf("FAIL: the game's-drawer lines\n");
+			return 1;
+		}
+	}
+	// WorldLinesEngine with the stand-in drawer: the map's lines are drawn, never over a "first-person gun" already in
+	// the depth buffer (the bottom-right quarter, 0.3 units from the camera), and the drawer's buffer, topology, blend
+	// and rasterizer states are as it left them
+	{
+		if (!fake::init(dev, ctx))
+		{
+			std::printf("FAIL: the stand-in drawer could not be made\n");
+			return 1;
+		}
+		ID3D11Texture2D* dtex = nullptr;
+		ID3D11DepthStencilView* dsv = nullptr;
+		D3D11_TEXTURE2D_DESC dd{};
+		dd.Width = W, dd.Height = H, dd.MipLevels = 1, dd.ArraySize = 1, dd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT, dd.SampleDesc.Count = 1;
+		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		dev->CreateTexture2D(&dd, nullptr, &dtex);
+		dev->CreateDepthStencilView(dtex, nullptr, &dsv);
+		auto cellsPtr = std::make_shared<EdgeCells>();
+		cellsPtr->build(*scene);
+		std::shared_ptr<const Scene> sceneC = scene;
+		std::shared_ptr<const EdgeCells> cellsC = cellsPtr;
+		EngineFns fns;
+		fns.setExplicitShaders = &fake::setExplicitShaders;
+		fns.setZBufferMode = &fake::setZBufferMode;
+		fns.drawPrimitiveUp = &fake::drawPrimitiveUp;
+		fns.cullMode = &fake::cullMode;
+		fns.cullModeChanged = &fake::cullChanged;
+		EngineGrid grid;
+		int lit = 0, overGun = 0, restored = 0, tried = 0, gunViews = 0;
+		const char* why = "";
+		for (const Pose& pose : poses)
+		{
+			const Camera cam = makeCamera(pose.eye, pose.yaw, pose.pitch, vfov, (float)W / H);
+			const float bg[4] = { 0, 0, 0, 1 };
+			ctx->ClearRenderTargetView(rtv, bg);
+			ctx->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.f, 0);
+			ctx->OMSetRenderTargets(1, &rtv, dsv);
+			D3D11_VIEWPORT vp{ 0, 0, (float)W, (float)H, 0, 1 };
+			ctx->RSSetViewports(1, &vp);
+			fake::setView(cam);
+			// the gun: a black quad in the bottom-right quarter, depth written (the game's scene before the hook)
+			fake::setExplicitShaders(0, 8, 0, 0, nullptr);
+			fake::setZBufferMode(0);
+			const V3 c0 = cam.pos + cam.fwd * 0.05f;
+			const V3 r = cam.right * (0.05f * cam.tx), u = cam.up * (0.05f * cam.ty);
+			const V3 q[4] = { c0, c0 + r, c0 + r - u, c0 - u };
+			const worldlines::DebugVertex gun[6] = { { q[0].x, q[0].y, q[0].z, 0, 0, 0, 255 }, { q[1].x, q[1].y, q[1].z, 0, 0, 0, 255 },
+				{ q[2].x, q[2].y, q[2].z, 0, 0, 0, 255 }, { q[0].x, q[0].y, q[0].z, 0, 0, 0, 255 }, { q[2].x, q[2].y, q[2].z, 0, 0, 0, 255 },
+				{ q[3].x, q[3].y, q[3].z, 0, 0, 0, 255 } };
+			fake::drawPrimitiveUp(3, 2, gun, 16);
+			// what the drawer's state is before ours
+			ID3D11Buffer* vbBefore = nullptr;
+			UINT sb = 0, ob = 0;
+			ctx->IAGetVertexBuffers(0, 1, &vbBefore, &sb, &ob);
+			EmitCamera ec;
+			ec.pos = cam.pos, ec.fwd = cam.fwd, ec.up = cam.up, ec.left = cross(cam.up, cam.fwd), ec.vfov = vfov;
+			ec.hfov = 2.f * std::atan(std::tan(vfov / 2) * (float)W / H), ec.heightPx = (float)H, ec.aspect = (float)W / H;
+			EmitOptions eo;
+			eo.grid = true;
+			eo.gridOpacity = 1.f;
+			if (!grid.draw(ctx, fns, sceneC, cellsC, ec, eo))
+			{
+				why = grid.lastError();
+				break;
+			}
+			tried++;
+			ID3D11Buffer* vbAfter = nullptr;
+			UINT sa = 0, oa = 0;
+			ctx->IAGetVertexBuffers(0, 1, &vbAfter, &sa, &oa);
+			ID3D11BlendState* bs = nullptr;
+			FLOAT bf[4];
+			UINT bm = 0;
+			ctx->OMGetBlendState(&bs, bf, &bm);
+			ID3D11RasterizerState* rsNow = nullptr;
+			ctx->RSGetState(&rsNow);
+			D3D11_PRIMITIVE_TOPOLOGY topo{};
+			ctx->IAGetPrimitiveTopology(&topo);
+			if (vbAfter == fake::vb && vbBefore == fake::vb && bs == fake::blend && rsNow == fake::raster && topo == D3D11_PRIMITIVE_TOPOLOGY_LINELIST && fake::cullMode == 4 * 2)
+				restored++;
+			for (auto* x : { vbBefore, vbAfter }) if (x) x->Release();
+			if (bs) bs->Release();
+			if (rsNow) rsNow->Release();
+			// a map edge nearer than the gun is rightly in front of it: such views are not counted for the gun
+			bool clearAhead = true;
+			for (int k = 0; k < kEdgeKinds && clearAhead; k++)
+				for (size_t e = 0; e + 1 < scene->edgeIndex[k].size() && clearAhead; e += 2)
+				{
+					const V3 a = scene->verts[scene->edgeIndex[k][e]], b = scene->verts[scene->edgeIndex[k][e + 1]], ab = b - a, ap = cam.pos - a;
+					const float t = std::clamp(dot(ap, ab) / (std::max)(dot(ab, ab), 1e-9f), 0.f, 1.f);
+					if (length(ap - ab * t) < 0.1f) clearAhead = false;
+				}
+			if (clearAhead) gunViews++;
+			ctx->CopyResource(staging, target);
+			D3D11_MAPPED_SUBRESOURCE m;
+			ctx->Map(staging, 0, D3D11_MAP_READ, 0, &m);
+			for (int y = 0; y < H; y++)
+				for (int x = 0; x < W; x++)
+				{
+					const uint8_t* px = (const uint8_t*)m.pData + (size_t)y * m.RowPitch + (size_t)x * 4;
+					const bool on = px[0] > 40 || px[1] > 40 || px[2] > 40;
+					if (!on) continue;
+					if (x > W / 2 + 4 && y > H / 2 + 4) { if (clearAhead) overGun++; }
+					else lit++;
+				}
+			{
+				static int last = 0;
+				if (overGun != last) { std::printf("    view %d (eye %.2f %.2f %.2f yaw %.0f pitch %.0f): %d over the gun|", tried, pose.eye.x, pose.eye.y, pose.eye.z, pose.yaw, pose.pitch, overGun - last);
+					char path[512]; std::snprintf(path, sizeof(path), "%s/engine_gun_%d.bmp", argv[4], tried); writeBmp(path, (const uint8_t*)m.pData, m.RowPitch, W, H); }
+				last = overGun;
+			}
+			ctx->Unmap(staging, 0);
+		}
+		std::printf("  in the game's view render (stand-in drawer): %d views, %d line pixels, %d over the first-person gun, state put back on %d%s%s\n", tried, lit, overGun,
+			restored, *why ? ": " : "", why);
+		if (tried == 0 || lit == 0 || gunViews == 0 || overGun != 0 || restored != tried)
+		{
+			std::printf("FAIL: the game's-drawer path\n");
+			return 1;
+		}
+		ctx->OMSetRenderTargets(1, &rtv, nullptr);
+		dsv->Release();
+		dtex->Release();
 	}
 	std::printf("PASS\n");
 	return 0;

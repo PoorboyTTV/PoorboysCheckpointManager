@@ -69,6 +69,7 @@ namespace worldlines
 		std::vector<V3> verts;
 		std::vector<uint32_t> triIndex;
 		std::vector<uint32_t> edgeIndex[kEdgeKinds];        // pairs of vertex indices
+		std::vector<V3> edgeNormal[kEdgeKinds];             // one per edge: the average normal of the polygons sharing it
 
 		std::vector<Seg> green;         // landing edges of the jump spots (launch >= +9 on enough take-offs), lifted 0.01
 		std::vector<Seg> yellow;        // fast-drop seams, lifted 0.01

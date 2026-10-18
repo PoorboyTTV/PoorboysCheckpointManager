@@ -7,6 +7,7 @@
 #include "IMCCStateHook.h"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 namespace
 {
@@ -37,17 +38,42 @@ namespace
 		bool mSaidPhysics = false, mSaidFly = false, mSaidClip = false, mSaidAI = false, mSaidLines = false; // what the message log was last told (both games' instances call apply)
 		bool mSpotInUse = false;                    // Save spot was pressed: the mod stays loaded for it (observe mode when nothing else is on)
 
-		void writeSwitch(const wchar_t* name, int value)
+		// a switch file as a whole: unchanged ones are left alone, a changed one is written beside it and swapped in, so
+		// the mod (which reads the switches the moment it is poked) never sees one half written. A rename refused for a
+		// moment (the mod has the file open) is tried again; at the end the file is written in place as before.
+		void writeText(const wchar_t* name, const std::string& text)
 		{
-			std::ofstream f(std::filesystem::path(mDir + name), std::ios::trunc);
-			f << value;
+			const std::filesystem::path path(mDir + name);
+			{
+				std::ifstream in(path, std::ios::binary);
+				std::string now((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+				if (in.good() || in.eof())
+					if (now == text) return;
+			}
+			const std::filesystem::path temp(mDir + name + std::wstring(L".new"));
+			{
+				std::ofstream f(temp, std::ios::trunc | std::ios::binary);
+				f << text;
+			}
+			for (int i = 0; i < 20; i++)
+			{
+				if (MoveFileExW(temp.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING)) return;
+				Sleep(1);
+			}
+			std::error_code ec;
+			std::filesystem::remove(temp, ec);
+			std::ofstream f(path, std::ios::trunc | std::ios::binary);
+			f << text;
 		}
+
+		void writeSwitch(const wchar_t* name, int value) { writeText(name, std::to_string(value)); }
 
 		void writeFly(bool on, float speed)
 		{
-			std::ofstream f(std::filesystem::path(mDir + L"h3sb_fly.txt"), std::ios::trunc);
-			f.imbue(std::locale::classic());
-			f << (on ? 1 : 0) << ' ' << std::clamp(speed, 0.5f, 100.f);
+			std::ostringstream s;
+			s.imbue(std::locale::classic());
+			s << (on ? 1 : 0) << ' ' << std::clamp(speed, 0.5f, 100.f);
+			writeText(L"h3sb_fly.txt", s.str());
 		}
 
 		// a line for the message log when physics or fly changed since the last call ("" = nothing new)

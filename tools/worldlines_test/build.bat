@@ -6,5 +6,5 @@ set HERE=%~dp0
 if not defined VSDIR set VSDIR=C:\Program Files\Microsoft Visual Studio\2022\Community
 call "%VSDIR%\VC\Auxiliary\Build\vcvars64.bat" >nul || exit /b 1
 cd /d "%HERE%"
-cl /nologo /std:c++20 /O2 /EHsc /W4 /WX /MT /Fe:worldlines_test.exe main.cpp ..\..\HCMInternal\WorldLinesScene.cpp ..\..\HCMInternal\WorldLinesGpu.cpp || exit /b 1
+cl /nologo /std:c++20 /O2 /EHsc /W4 /WX /MT /Fe:worldlines_test.exe main.cpp ..\..\HCMInternal\WorldLinesScene.cpp ..\..\HCMInternal\WorldLinesGpu.cpp ..\..\HCMInternal\WorldLinesEmit.cpp ..\..\HCMInternal\WorldLinesEngine.cpp || exit /b 1
 echo built %HERE%worldlines_test.exe

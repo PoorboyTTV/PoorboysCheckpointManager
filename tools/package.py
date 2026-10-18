@@ -45,7 +45,9 @@ Made for MCC 1.3528 on Steam.
      F9   30 / 60 tick, any time: game and Halo 2 physics together (30 = Xbox Halo 2 with superbounces,
           60 = PC Halo 2: slides down slopes, no superbounces from ordinary heights)
      F10  Halo 2 button combos           F11  no falling deaths
-          (the combos include the plasma pistol double grenade: charged shot, about a second later grenade, grenade;
+          (the combos include the double shot R, R, X - the second R on the tick right after the burst's last
+          round - and the quad shot R, R, X, Y, Y, R, R, X; the plasma pistol double grenade: charged shot, about a
+          second later grenade, grenade;
           X during a weapon switch swaps at once; with Halo 2 physics on, Halo 2's lunges: butterflying, and sword
           flying = rifle locked on someone, Y, X, RT: the sword lunges at what the rifle had locked)
      Arm now  the armed state without finding a spot to crouch-stand in: bind it yourself with its .. button
@@ -65,8 +67,8 @@ Made for MCC 1.3528 on Steam.
    Online (custom games, everyone with anti-cheat off): everyone runs this same version, with the same 30 tick
    setting as the host (on for superbounces).
 6. Map grid (in Poorboy's Mods, bind it with its .. button): every collision edge of the map drawn into the game view,
-   hidden behind walls: cyan = the map, yellow = instanced geometry; sliders for line width and opacity, players are
-   drawn in front of the lines. Hide HUD (Halo Checkpoint Manager's) hides the overlay's text too. Jump spots: Halo 3's own maps' bounce spots near you
+   hidden behind walls: cyan = the map, yellow = instanced geometry; sliders for line width and opacity. In Halo 3 it
+   is drawn inside the game's own render: people and your gun hide it too. Hide HUD (Halo Checkpoint Manager's) hides the overlay's text too. Jump spots: Halo 3's own maps' bounce spots near you
    (green landing edge, magenta take-off mark with the stick recipe, orange fast-drop seams).
    Armed: your own dot in the middle of Halo 3's motion tracker turns green (it shows while you move). Crouch, release
    or tap crouch on the exact tick you land also arms you, as in Halo 2.
