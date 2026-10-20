@@ -27,6 +27,7 @@
 	((h2pWorldLinesToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pGridWidthGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pGridOpacityGUI, (Halo3, Halo3ODST, HaloReach)))\
+	((h2pGridNoBloomGUI, (Halo3)))\
 	((h2pJumpSpotsToggleGUI, (Halo3)))\
 	((h2pFlyToggleGUI, (Halo3, Halo3ODST, HaloReach)))\
 	((h2pFlySpeedGUI, (Halo3, Halo3ODST, HaloReach)))\

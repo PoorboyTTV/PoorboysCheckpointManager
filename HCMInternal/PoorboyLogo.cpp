@@ -15,6 +15,10 @@ void PoorboyLogo::release()
 void PoorboyLogo::onRender(ID3D11Device* pDevice, SimpleMath::Vector2 screenSize)
 {
 	std::unique_lock<std::mutex> lock(mDestructionGuard);
+	// the logo is drawn through ImGui, so it is placed in ImGui's display size: HCM's screen size comes from
+	// ResizeBuffers and can be 0 x 0 or stale after a resize (the map grid had the same trouble, PoorboyWorldLines.cpp)
+	const ImVec2 display = ImGui::GetIO().DisplaySize;
+	if (display.x >= 64 && display.y >= 64) screenSize = SimpleMath::Vector2(display.x, display.y);
 	if (mFailed || !pDevice || screenSize.x < 64 || screenSize.y < 64) return;
 	const MCCState& state = mccStateHook->getCurrentMCCState();
 	if (state.currentPlayState != PlayState::Ingame) return;

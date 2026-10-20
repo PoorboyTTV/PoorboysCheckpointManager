@@ -6,6 +6,7 @@
 #include "MCCStateHook.h"
 #include "imgui.h"
 #include "Lapua.h"
+#include "PcmVersion.h"
 #define addTooltip(x) if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) ImGui::SetTooltip(x)
 
 
@@ -211,7 +212,10 @@ void HCMInternalGUI::primaryRender()
 		ImGuiWindowFlags blockInputsIfNoCursor = *mIsCursorShowing == true ? ImGuiWindowFlags_None : ImGuiWindowFlags_NoInputs & ImGuiWindowFlags_NoMouseInputs;
 
 		ImGui::SetNextWindowCollapsed(!m_WindowOpen);
-		m_WindowOpen = ImGui::Begin(m_WindowOpen ? "Poorboys Checkpoint Manager###PCM" : "PCM###PCM", nullptr, windowFlags | blockInputsIfNoCursor); // Create window. Returns false when window collapsed
+		// the version in the title, open and collapsed: clips people send show which build they were on
+		static const std::string openTitle = std::string("Poorboys Checkpoint Manager ") + kPcmVersion + "###PCM";
+		static const std::string collapsedTitle = std::string("PCM ") + kPcmVersion + "###PCM";
+		m_WindowOpen = ImGui::Begin(m_WindowOpen ? openTitle.c_str() : collapsedTitle.c_str(), nullptr, windowFlags | blockInputsIfNoCursor); // Create window. Returns false when window collapsed
 
 		ImGui::PopStyleColor();
 

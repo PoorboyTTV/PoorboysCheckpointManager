@@ -168,6 +168,9 @@ const std::map <GUIElementEnum, std::vector<OptionalCheatEnum>> GUIRequiredServi
 	{GUIElementEnum::h2pGridOpacityGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},
+	{GUIElementEnum::h2pGridNoBloomGUI,
+			{OptionalCheatEnum::Halo2Physics}
+	},
 	{GUIElementEnum::h2pCloseHelpersGUI,
 			{OptionalCheatEnum::Halo2Physics}
 	},

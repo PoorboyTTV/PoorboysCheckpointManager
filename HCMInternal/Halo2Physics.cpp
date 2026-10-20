@@ -196,6 +196,9 @@ namespace
 			// fly, bottomless clip, the map grid or the spot alone (physics off): the mod in observe mode with the game's own
 			// barriers, tick rate, melee and falls
 			writeSwitch(L"h3sb_tick.txt", o.physics && o.tick30 ? 30 : 60);
+			// the Halo 2 body at the game's own tick rate (60 tick bouncing at 60): clears a 30 left by the 1.3.2 / 1.3.3
+			// tests' "Halo 2 at 30, game at 60" switch
+			writeSwitch(L"h3sb_h2rate.txt", 0);
 			writeSwitch(L"h3sb_barriers.txt", o.physics ? std::clamp(o.barriers, 0, 3) : 0);
 			writeSwitch(L"h3sb_combos.txt", o.physics && o.combos ? 1 : 0);
 			writeSwitch(L"h3sb_falls.txt", o.physics && o.noFallDeaths ? 1 : 0);

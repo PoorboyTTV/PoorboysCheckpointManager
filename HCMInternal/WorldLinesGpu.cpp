@@ -26,6 +26,8 @@ namespace worldlines
 			float viewport[4];      // width, height, half line width (pixels), near
 			float colour[4];
 			float limits[4];        // x: lines further than this along the view are not drawn
+			float scene[4];         // the game's depth: near, far, reversed, in use
+			float sceneMap[4];      // its pixels per target pixel (x, y), the range that hides lines
 		};
 
 		Rgba rgb(int r, int g, int b) { return { r / 255.f, g / 255.f, b / 255.f, 1.f }; }
@@ -52,6 +54,7 @@ namespace worldlines
 			ID3D11ClassInstance* vsInst[256], * gsInst[256], * psInst[256];
 			UINT vsInstCount = 256, gsInstCount = 256, psInstCount = 256;
 			ID3D11Buffer* vsCb = nullptr, * gsCb = nullptr, * psCb = nullptr;
+			ID3D11ShaderResourceView* psView = nullptr;
 			D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
 			ID3D11Buffer* indexBuffer = nullptr;
 			DXGI_FORMAT indexFormat = DXGI_FORMAT_UNKNOWN;
@@ -73,6 +76,7 @@ namespace worldlines
 				c->VSGetConstantBuffers(0, 1, &vsCb);
 				c->GSGetConstantBuffers(0, 1, &gsCb);
 				c->PSGetConstantBuffers(0, 1, &psCb);
+				c->PSGetShaderResources(0, 1, &psView);
 				c->IAGetPrimitiveTopology(&topology);
 				c->IAGetIndexBuffer(&indexBuffer, &indexFormat, &indexOffset);
 				c->IAGetVertexBuffers(0, 1, &vertexBuffer, &vertexStride, &vertexOffset);
@@ -94,6 +98,7 @@ namespace worldlines
 				c->VSSetConstantBuffers(0, 1, &vsCb);
 				c->GSSetConstantBuffers(0, 1, &gsCb);
 				c->PSSetConstantBuffers(0, 1, &psCb);
+				c->PSSetShaderResources(0, 1, &psView);
 				c->IASetPrimitiveTopology(topology);
 				c->IASetIndexBuffer(indexBuffer, indexFormat, indexOffset);
 				c->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexStride, &vertexOffset);
@@ -112,6 +117,7 @@ namespace worldlines
 				drop(vsCb);
 				drop(gsCb);
 				drop(psCb);
+				drop(psView);
 				drop(indexBuffer);
 				drop(vertexBuffer);
 				drop(layout);
@@ -242,6 +248,10 @@ namespace worldlines
 		drop(mDepthView);
 		drop(mDepthTex);
 		mDepthW = mDepthH = mDepthSamples = 0;
+		drop(mSceneView);
+		drop(mSceneCopy);
+		mSceneDesc = {};
+		mSceneUsed = false;
 		drop(mVsDepth);
 		drop(mVsLine);
 		drop(mGsLine);
@@ -339,6 +349,85 @@ namespace worldlines
 		return true;
 	}
 
+	// the game's depth copied into a texture the line shader reads (the game's own may not be readable by a shader, and
+	// may be bound as the game's depth view). Copy and source are in the same format group, at the same size
+	bool Gpu::sceneFor(ID3D11DeviceContext* ctx, ID3D11Texture2D* game)
+	{
+		ID3D11Device* owner = nullptr;
+		game->GetDevice(&owner);
+		if (owner) owner->Release();
+		if (owner != mDevice)
+		{
+			mSceneProblem = "the game's depth belongs to another device";
+			return false;
+		}
+		D3D11_TEXTURE2D_DESC d;
+		game->GetDesc(&d);
+		DXGI_FORMAT copyFormat, readFormat;
+		bool reversed;
+		switch (d.Format)
+		{
+		case DXGI_FORMAT_R32G8X24_TYPELESS:
+		case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+			copyFormat = DXGI_FORMAT_R32G8X24_TYPELESS, readFormat = DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS, reversed = true;
+			break;
+		case DXGI_FORMAT_R32_TYPELESS:
+		case DXGI_FORMAT_D32_FLOAT:
+			copyFormat = DXGI_FORMAT_R32_TYPELESS, readFormat = DXGI_FORMAT_R32_FLOAT, reversed = true;
+			break;
+		case DXGI_FORMAT_R24G8_TYPELESS:
+		case DXGI_FORMAT_D24_UNORM_S8_UINT:
+			copyFormat = DXGI_FORMAT_R24G8_TYPELESS, readFormat = DXGI_FORMAT_R24_UNORM_X8_TYPELESS, reversed = false;
+			break;
+		default:
+			mSceneProblem = "the game's depth is in a format the grid does not know";
+			return false;
+		}
+		// the MCC games keep a float depth reversed (1 at the near plane; Halo 3 c_rasterizer::clear 0x274254 and
+		// render_camera_build_projection 0x2A6980 turn it round when the depth view is D32_FLOAT_S8X24), 24-bit as usual
+		if (d.SampleDesc.Count != 1 || d.ArraySize != 1 || d.Width < 16 || d.Height < 16)
+		{
+			mSceneProblem = "the game's depth is multisampled or an array";
+			return false;
+		}
+		if (!mSceneCopy || mSceneDesc.Width != d.Width || mSceneDesc.Height != d.Height || mSceneDesc.Format != copyFormat ||
+			mSceneDesc.MipLevels != d.MipLevels)
+		{
+			drop(mSceneView);
+			drop(mSceneCopy);
+			mSceneDesc = {};
+			D3D11_TEXTURE2D_DESC c{};
+			c.Width = d.Width;
+			c.Height = d.Height;
+			c.MipLevels = d.MipLevels;
+			c.ArraySize = 1;
+			c.Format = copyFormat;
+			c.SampleDesc.Count = 1;
+			c.Usage = D3D11_USAGE_DEFAULT;
+			c.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			if (FAILED(mDevice->CreateTexture2D(&c, nullptr, &mSceneCopy)))
+			{
+				mSceneProblem = "the copy of the game's depth could not be made";
+				return false;
+			}
+			D3D11_SHADER_RESOURCE_VIEW_DESC v{};
+			v.Format = readFormat;
+			v.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			v.Texture2D.MipLevels = 1;
+			if (FAILED(mDevice->CreateShaderResourceView(mSceneCopy, &v, &mSceneView)))
+			{
+				drop(mSceneCopy);
+				mSceneProblem = "the copy of the game's depth could not be read";
+				return false;
+			}
+			mSceneDesc = c;
+		}
+		ctx->CopyResource(mSceneCopy, game);
+		mSceneReversed = reversed;
+		mSceneProblem = "";
+		return true;
+	}
+
 	bool Gpu::draw(ID3D11DeviceContext* ctx, ID3D11RenderTargetView* rtv, float width, float height, const Camera& cam, const DrawOptions& opt)
 	{
 		if (!mDevice || !mVsLine || !mScene || !ctx || !rtv || width < 16 || height < 16 || (!opt.grid && !opt.spots)) return false;
@@ -352,7 +441,23 @@ namespace worldlines
 		StateBackup saved;
 		saved.save(ctx);
 
+		// the game's depth, for the lines behind its first-person gun and arms
+		mSceneUsed = false;
+		if (!opt.sceneDepth) mSceneProblem = "not given";
+		else if (!(opt.sceneNear > 0.f)) mSceneProblem = "the game camera's near plane is not known";
+		else mSceneUsed = sceneFor(ctx, opt.sceneDepth);
+
 		FrameConstants k{};
+		if (mSceneUsed)
+		{
+			k.scene[0] = opt.sceneNear;
+			k.scene[1] = opt.sceneFar > opt.sceneNear ? opt.sceneFar : 0.f;
+			k.scene[2] = mSceneReversed ? 1.f : 0.f;
+			k.scene[3] = 1.f;
+			k.sceneMap[0] = (float)mSceneDesc.Width / width;
+			k.sceneMap[1] = (float)mSceneDesc.Height / height;
+			k.sceneMap[2] = opt.sceneRange;
+		}
 		const float rx[4] = { cam.right.x / cam.tx, cam.right.y / cam.tx, cam.right.z / cam.tx, -dot(cam.right, cam.pos) / cam.tx };
 		const float ry[4] = { cam.up.x / cam.ty, cam.up.y / cam.ty, cam.up.z / cam.ty, -dot(cam.up, cam.pos) / cam.ty };
 		const float rz[4] = { 0, 0, 0, kNear };
@@ -428,6 +533,8 @@ namespace worldlines
 		ctx->VSSetShader(mVsLine, nullptr, 0);
 		ctx->GSSetShader(mGsLine, nullptr, 0);
 		ctx->PSSetShader(mPsLine, nullptr, 0);
+		ID3D11ShaderResourceView* sceneView = mSceneUsed ? mSceneView : nullptr;
+		ctx->PSSetShaderResources(0, 1, &sceneView);
 		ctx->OMSetBlendState(mAlpha, nullptr, 0xFFFFFFFF);
 		ctx->OMSetDepthStencilState(mDepthTest, 0);
 		const float s = (std::max)(opt.lineScale, 0.5f);

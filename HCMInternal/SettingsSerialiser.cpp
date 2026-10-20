@@ -3,6 +3,7 @@
 #include "SettingsStateAndEvents.h"
 #include "MessagesGUI.h"
 #include <pugixml.hpp>
+#include "PoorboySharedConfig.h"
 
 
 // need to get some xml code up in here
@@ -66,6 +67,7 @@ void SettingsSerialiser::serialise(std::vector<std::shared_ptr<SerialisableSetti
 		else
 		{
 			PLOG_DEBUG << "Successfully saved settings to filepath: " << filePath;
+			PoorboySharedConfig::keepCopy(filePath, configFileName);
 		}
 	}
 	catch (HCMSerialisationException& ex)
@@ -82,8 +84,24 @@ void SettingsSerialiser::deserialise(std::vector<std::shared_ptr<SerialisableSet
 			
 	pugi::xml_parse_result result = doc.load_file(filePath.c_str());
 	PLOG_DEBUG << "setting file parse result: " << (result.operator bool() ? "true" : "false");
+
+	// a new version in a new folder starts from the copy the last version kept (PoorboySharedConfig.h)
+	bool fromCopy = false;
+	if (result.status == pugi::status_file_not_found)
+	{
+		if (auto copy = PoorboySharedConfig::copyToLoad(configFileName))
+		{
+			PLOG_DEBUG << "no settings file in the folder; loading the copy at " << copy->wstring();
+			if (pugi::xml_parse_result copyResult = doc.load_file(copy->c_str()))
+				result = copyResult, fromCopy = true;
+			else
+				doc.reset();    // an unreadable copy: the defaults, as with no file at all
+		}
+	}
+
 	if (result)
 	{
+		if (fromCopy) messagesGUI->addMessage("Settings loaded from your last version of PCM.");
 		try
 		{
 			auto optionArray = doc.child(nameof(Setting));

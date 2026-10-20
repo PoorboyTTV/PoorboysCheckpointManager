@@ -6,7 +6,7 @@
 
 One zip, nothing to install. Windows, MCC on Steam (made for MCC 1.3528). Older versions and release notes: [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases).
 
-**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.2.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.2.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
+**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.3.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.3.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
 
 💬 **Need help, found a bug, or want something added?** Message Poorboy on Discord: **@poorboy**
 
@@ -30,12 +30,13 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 ### Halo 2 physics
 - **Superbounces** work as in Halo 2: Halo 2's own player body, collision step, movement and jump, ported to run inside Halo 3, ODST and Reach.
 - **Barrier breaks**, as in MCC Halo 2: Halo 2's time-of-impact skip (TIM) and its back-stepping over-credit are reproduced. Bump a wall again and again next to a sharp corner, then walk into the other wall and you go through it (needs 30 tick; you come out armed).
-- **30 tick** (F9): the game and the Halo 2 physics run at 30 ticks a second, like Xbox Halo 2, which is what superbounces need. 60 = PC Halo 2 (no superbounces from ordinary heights). Switch any time.
+- **30 tick** (F9): the game and the Halo 2 physics run at 30 ticks a second, like Xbox Halo 2, which is what superbounces need. 60 = MCC Halo 2's old 60 tick: you slide down slopes, and bounces need much bigger drops but go much higher (60 tick bouncing). Switch any time.
 - **Arm now**: puts you in Halo 2's armed state without finding a crouch-stand spot. The status line shows whether you're armed and your speed.
 - **Armed = green radar dot** (Halo 3): while you're armed, your own dot in the middle of the motion tracker turns green instead of yellow. Like every Halo 3 tracker dot, it only shows while you're moving.
 - **Crouch at touchdown arms you**, as in Halo 2: press, release or tap crouch on the exact tick you land and the rebuilt body can't back-step out of the floor, so you're armed for the next landing (a small hop or nothing on that one).
 - **Explosions push the Halo 2 way**, with Halo 2's own numbers: grenade and rocket jumps feel like Halo 2.
-- **Solid objects**: ride lifts and man cannons (walk in or jump in), stand on and push crates, all as Halo 2 does it.
+- **Solid objects**: ride lifts and man cannons (walk in or jump in), stand on and push crates, all as Halo 2 does it. In Reach, elevators and doors are solid too and carry you.
+- **Glass breaks**: once a pane is shot out, you can walk and jump through it.
 
 ### Halo 2 combat
 - **Button combos** (F10): BXR, BXB, **double shot** (R, R, X: the second R on the tick right after the burst's last round, then X), **quad shot** (R, R, X, Y, Y, R, R, X: YY drops the switch and gives the same gun back at once), the melee lock, YX (X during a weapon switch swaps at once) and the plasma pistol double grenade (Halo 3, ODST; Reach has the melee combos).
@@ -48,7 +49,7 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 - **No falling deaths** (F11): falls and hard landings never hurt (in Reach also its landing and impact damage).
 - **Bottomless Clip**: your magazine never empties, plasma batteries don't drain, grenades never run out.
 - **Disable AI**: enemies and allies stand still and don't shoot, for campaign practice and videos.
-- **Map grid**: every collision edge of the whole map drawn into the game view, hidden behind walls: cyan = the map itself, yellow = instanced geometry (rocks, pillars, props). The seams are where bounces come from. In Halo 3 it is drawn inside the game's own render, so walls, people, vehicles and your first-person gun hide it (ODST and Reach: drawn over the frame, people kept in front). It doesn't lag the game; switch it on and off (bind it with its .. button). Sliders for the line width and opacity.
+- **Map grid**: every collision edge of the whole map drawn into the game view, hidden behind walls: cyan = the map itself, yellow = instanced geometry (rocks, pillars, props). The seams are where bounces come from. In Halo 3 it is drawn inside the game's own render, so walls, people, vehicles and your first-person gun hide it (ODST, Reach and Halo 3's "Grid without bloom": drawn over the frame, people and your first-person gun and arms kept in front). It doesn't lag the game; switch it on and off (bind it with its .. button). Sliders for the line width and opacity.
 - **Jump spots** (Halo 3's own maps): the scanned bounce spots near you: green landing edges, magenta take-off marks with the stick recipe, orange fast-drop seams.
 - **Helper windows**: a map window with call-outs (Halo 3, ODST).
 
@@ -80,7 +81,7 @@ A see-through logo sits in the top-left corner of the game, next to the grenade 
 | F11 | No falling deaths |
 | (set your own) | Arm now, Fly, Save spot, Back to spot, Bottomless Clip, Disable AI, Forge bounces |
 
-Every key can be rebound with the **..** button beside it in the overlay: a key, a controller button, or a combination.
+Every key can be rebound with the **..** button beside it in the overlay: a key, a controller button, or a combination. From 1.4.0 on, your hotkeys and settings carry over to the next version, even unzipped to a new folder.
 
 ---
 
@@ -100,7 +101,7 @@ Multiplayer custom games with friends who also have anti-cheat off.
 - **"Not armed: the Halo 2 body is not driving the player"**: you're flying, in a vehicle, dead, or the game is still loading.
 - **Something went wrong**: message Poorboy on Discord (**@poorboy**) and send the `Logs` folder and the `h3sb\h3sb.log` and `h3sb\h3sb_prev.log` files (not to Burnt-o).
 
-Known limits: in Reach, vehicles and objects that move are not solid for the Halo 2 body yet. Online play has been tested with two players.
+Known limits: in Reach, vehicles are not solid for the Halo 2 body yet. Online play has been tested with two players.
 
 ---
 

@@ -3,6 +3,7 @@
 #include "SettingsStateAndEvents.h"
 #include "IMessagesGUI.h"
 #include "pugixml.hpp"
+#include "PoorboySharedConfig.h"
 
 //bool shouldHotkeyActivate(const std::vector<ImGuiKey>& bindingSet);
 //void serialiseHotkey(const std::shared_ptr<Hotkey> hotkey, pugi::xml_node parent);
@@ -27,16 +28,24 @@ HotkeyManager::HotkeyManager(std::shared_ptr<RenderEvent> pRenderEvent, std::sha
 	// set hotkey config file path
 	mHotkeyConfigPath = dirPath + "HCMHotkeyConfig.xml";
 
-	if (!fileExists(mHotkeyConfigPath)) // use default bindings
+	// a new version in a new folder starts from the copy the last version kept (PoorboySharedConfig.h)
+	std::filesystem::path loadPath = mHotkeyConfigPath;
+	const bool inFolder = fileExists(mHotkeyConfigPath);
+	std::optional<std::filesystem::path> copy;
+	if (!inFolder) copy = PoorboySharedConfig::copyToLoad("HCMHotkeyConfig.xml");
+	if (copy) loadPath = *copy;
+
+	if (!inFolder && !copy) // use default bindings
 	{
 		messagesGUI->addMessage(std::format("Could not load hotkeys, HCMHotkeyConfig.xml not found. \nUsing default bindings."));
 		PLOG_ERROR << "Could not deserialise hotkeys: Hotkey config file didn't exist at " << mHotkeyConfigPath;
 	}
 	else // deseralise saved bindings
 	{
-		PLOG_DEBUG << "Found hotkey file at path: " << mHotkeyConfigPath << ", parsing xml document";
+		PLOG_DEBUG << "Found hotkey file at path: " << loadPath.wstring() << ", parsing xml document";
+		if (copy) messagesGUI->addMessage("Hotkeys loaded from your last version of PCM.");
 		pugi::xml_document hotkeyConfig;
-		pugi::xml_parse_result result = hotkeyConfig.load_file(mHotkeyConfigPath.c_str());
+		pugi::xml_parse_result result = hotkeyConfig.load_file(loadPath.c_str());
 
 
 
@@ -88,6 +97,7 @@ void HotkeyManager::saveHotkeysToFile()
 	else
 	{
 		PLOG_INFO << "Successfully saved hotkey file!";
+		PoorboySharedConfig::keepCopy(mHotkeyConfigPath, "HCMHotkeyConfig.xml");
 	}
 }
 

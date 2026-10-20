@@ -492,6 +492,8 @@ IF EXIST "C:\Program Files\LockHunter\LockHunter.exe"  (
     <ClInclude Include="PoorboyLogo.h" />
     <ClInclude Include="PoorboyLogoData.h" />
     <ClInclude Include="PoorboyLogoArt.h" />
+    <ClInclude Include="PcmVersion.h" />
+    <ClInclude Include="PoorboySharedConfig.h" />
     <ClInclude Include="PoorboyWorldLines.h" />
     <ClInclude Include="WorldLinesScene.h" />
     <ClInclude Include="WorldLinesGpu.h" />

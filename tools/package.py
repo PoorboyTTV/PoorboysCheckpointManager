@@ -43,7 +43,7 @@ Made for MCC 1.3528 on Steam.
    the game is paused while the overlay is open, and the physics takes hold once the game runs.
      F7   barriers (the game's own / soft ceilings off / + out-of-bounds kill off / + kill volumes off)
      F9   30 / 60 tick, any time: game and Halo 2 physics together (30 = Xbox Halo 2 with superbounces,
-          60 = PC Halo 2: slides down slopes, no superbounces from ordinary heights)
+          60 = MCC Halo 2's old 60 tick: slides down slopes, bounces need much bigger drops but go much higher)
      F10  Halo 2 button combos           F11  no falling deaths
           (the combos include the double shot R, R, X - the second R on the tick right after the burst's last
           round - and the quad shot R, R, X, Y, Y, R, R, X; the plasma pistol double grenade: charged shot, about a
@@ -64,11 +64,14 @@ Made for MCC 1.3528 on Steam.
    without rolling the game back, so they are safe online. Bind them yourself with their .. buttons.
    Force Checkpoint / Force Revert still roll the whole game back (objects too).
 5. Every hotkey can be rebound with the .. button beside it: a key, or a controller button or combination.
+   Your hotkeys and settings carry over to the next version, even unzipped to a new folder (from this version on:
+   a copy is kept in %LOCALAPPDATA%\\PoorboysCheckpointManager).
    Online (custom games, everyone with anti-cheat off): everyone runs this same version, with the same 30 tick
    setting as the host (on for superbounces).
 6. Map grid (in Poorboy's Mods, bind it with its .. button): every collision edge of the map drawn into the game view,
    hidden behind walls: cyan = the map, yellow = instanced geometry; sliders for line width and opacity. In Halo 3 it
-   is drawn inside the game's own render: people and your gun hide it too. Hide HUD (Halo Checkpoint Manager's) hides the overlay's text too. Jump spots: Halo 3's own maps' bounce spots near you
+   is drawn inside the game's own render: people and your gun hide it too (ODST, Reach and "Grid without bloom": your gun
+   and arms hide it). Hide HUD (Halo Checkpoint Manager's) hides the overlay's text too. Jump spots: Halo 3's own maps' bounce spots near you
    (green landing edge, magenta take-off mark with the stick recipe, orange fast-drop seams).
    Armed: your own dot in the middle of Halo 3's motion tracker turns green (it shows while you move). Crouch, release
    or tap crouch on the exact tick you land also arms you, as in Halo 2.
@@ -105,7 +108,21 @@ def move_held_pdbs():
                 pass
 
 
+def check_versions():
+    # the window title (HCMExternal) and the overlay's title (HCMInternal) show the same version
+    import re
+    with open(os.path.join(ROOT, 'HCMExternal', 'App.xaml.cs'), encoding='utf-8-sig') as f:
+        external = re.search(r'PcmVersion = "([^"]*)"', f.read())
+    with open(os.path.join(ROOT, 'HCMInternal', 'PcmVersion.h'), encoding='utf-8-sig') as f:
+        internal = re.search(r'kPcmVersion = "([^"]*)"', f.read())
+    if not external or not internal or external.group(1) != internal.group(1):
+        sys.exit('version mismatch: App.xaml.cs PcmVersion %r, PcmVersion.h kPcmVersion %r' %
+                 (external and external.group(1), internal and internal.group(1)))
+    print('version', external.group(1))
+
+
 def main():
+    check_versions()
     move_held_pdbs()
     run([MSBUILD, os.path.join(ROOT, 'HaloCheckpointManager.sln'), '/m', '/restore'] + COMMON +
         ['/p:VcpkgRoot=' + VCPKG + '\\', '/p:ForceImportBeforeCppTargets=' + os.path.join(VCPKG, 'scripts', 'buildsystems', 'msbuild', 'vcpkg.targets')])

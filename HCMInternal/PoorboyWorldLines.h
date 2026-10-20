@@ -16,8 +16,9 @@ class SettingsStateAndEvents;
 //   "Jump spots"  Halo 3's stock maps: green landing edges, magenta take-off marks with their labels, orange fast-drop seams
 // Halo 3: drawn inside the game's own view render (WorldLinesEngine: c_player_view::render hooked, as Jagged's H3
 // Collision Viewer does), so the game's depth buffer hides the lines behind walls, people, vehicles and your
-// first-person gun. ODST and Reach (and Halo 3 if the hook cannot go in): drawn over the finished frame (WorldLinesGpu),
-// people kept clear by capsules (h3sb_bipeds; your own too unless the camera is in it: first person).
+// first-person gun. ODST and Reach (and Halo 3 if the hook cannot go in, or with "Grid without bloom"): drawn over the
+// finished frame (WorldLinesGpu), kept off the first-person gun and arms by a copy of the game's own depth buffer, people
+// kept clear by capsules (h3sb_bipeds; your own too unless the camera is in it: first person).
 // It replaced the old helper window (h3sb_world.py: a full-screen see-through window redrawn ~115 times a second, which
 // made the game lag). The polygons are the ones the Halo 2 physics mod read from the game (h3sb\h3sb_world_<map>.bin),
 // so the mod is kept loaded while either is on. A thread of its own finds and loads the map; the render hook uploads it
@@ -32,6 +33,12 @@ class PoorboyWorldLines
 	std::mutex mDestructionGuard;
 	worldlines::Gpu mGpu;                           // render thread only
 	bool mGpuFailed = false;
+	// render thread: the game's own depth buffer, which keeps the frame path's lines off its first-person gun and arms
+	// (found in the game's surface table every half second, one reference held between) and what was last logged of it
+	ID3D11Texture2D* mGameDepth = nullptr;
+	uint64_t mGameDepthMs = 0;
+	std::string mGameDepthNote;
+	const char* gameDepth(int game, ID3D11Device* device, uintptr_t camera, worldlines::DrawOptions& opt);    // "" = given
 
 	std::atomic<int> mGame = -1;                    // render thread -> worker: index of the game being played, -1 = draw nothing
 	std::atomic<bool> mWantSpots = false;
@@ -62,6 +69,7 @@ class PoorboyWorldLines
 	uintptr_t mHookBase = 0, mHookRefusedBase = 0;  // refused (another tool already hooks it; tried again after 30 s)
 	uint64_t mHookRefusedMs = 0;
 	std::atomic<int> mEngineDraws = 0, mFrameDraws = 0;     // for the status line (logged when the way changes)
+	std::atomic<int> mFrameSkip = 0;                // why the last frame drew no grid over it (FrameSkip, PoorboyWorldLines.cpp)
 	bool mEngineErrorLogged = false, mEngineContextLogged = false;
 	void hookView(int game, uintptr_t base);
 	void unhookView();

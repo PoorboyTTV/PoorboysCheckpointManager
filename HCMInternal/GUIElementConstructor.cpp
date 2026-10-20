@@ -135,6 +135,7 @@ private:
 						createNestedElement(GUIElementEnum::h2pWorldLinesToggleGUI),
 						createNestedElement(GUIElementEnum::h2pGridWidthGUI),
 						createNestedElement(GUIElementEnum::h2pGridOpacityGUI),
+						createNestedElement(GUIElementEnum::h2pGridNoBloomGUI),
 						createNestedElement(GUIElementEnum::h2pJumpSpotsToggleGUI),
 						createNestedElement(GUIElementEnum::h2pFlyToggleGUI),
 						createNestedElement(GUIElementEnum::h2pFlySpeedGUI),
@@ -171,6 +172,10 @@ private:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(0.25f, 4.f)>>
 						(game, ToolTipCollection("The map grid's line width in pixels (at 1080p; bigger screens scale it up)"), "Grid line width##h2p", settings->h2pGridWidth));
 
+				case GUIElementEnum::h2pGridNoBloomGUI:
+					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<false>>
+						(game, ToolTipCollection("Draws the map grid over the finished picture, as in ODST and Reach, instead of inside Halo 3's own 3D render: no bloom or glow on the lines; your gun and arms still hide them. Saved"), std::nullopt, "Grid without bloom##h2p", settings->h2pGridNoBloomToggle));
+
 				case GUIElementEnum::h2pGridOpacityGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUIFloat<SliderParam<float>(0.05f, 1.f)>>
 						(game, ToolTipCollection("How solid the map grid's lines are: 1 = solid, lower = see-through"), "Grid opacity##h2p", settings->h2pGridOpacity));
@@ -197,7 +202,10 @@ private:
 
 				case GUIElementEnum::h2pTick30ToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>
-						(game, ToolTipCollection("Switches the game and the Halo 2 physics between 30 and 60 ticks a second, any time (mid-game too). On: Halo 2 at 30 ticks (Xbox): superbounces, big landings on slopes stop on ledges. Off: Halo 2 at 60 ticks (PC): you slide down slopes, but superbounces from ordinary heights don't happen"), RebindableHotkeyEnum::h2pTick30Hotkey, "30 tick", settings->h2pTick30Toggle));
+						(game, ToolTipCollection(game.operator GameState::Value() == GameState::Value::HaloReach
+							? "Reach itself always runs at 60 ticks a second: this switches only the Halo 2 physics, any time (mid-game too). On: Halo 2 at 30 ticks (Xbox), one Halo 2 step every second Reach tick: superbounces, big landings on slopes stop on ledges. Off: Halo 2 at 60 ticks (MCC Halo 2's old 60 tick): you slide down slopes, and bounces (60 tick bouncing) need much bigger drops but go much higher"
+							: "Switches the game and the Halo 2 physics between 30 and 60 ticks a second, any time (mid-game too). On: Halo 2 at 30 ticks (Xbox): superbounces, big landings on slopes stop on ledges. Off: Halo 2 at 60 ticks (MCC Halo 2's old 60 tick): you slide down slopes, and bounces (60 tick bouncing) need much bigger drops but go much higher"),
+							RebindableHotkeyEnum::h2pTick30Hotkey, "30 tick", settings->h2pTick30Toggle));
 
 				case GUIElementEnum::h2pCombosToggleGUI:
 					return std::optional<std::shared_ptr<IGUIElement>>(std::make_shared<GUISimpleToggle<true>>

@@ -14,7 +14,13 @@ cbuffer Frame : register(b0)
     float4 viewport;    // x, y: pixels; z: half the line width in pixels; w: the near plane
     float4 colour;      // the lines' colour (premultiplied by nothing: alpha blends)
     float4 limits;      // x: lines whose near end is further than this (world units along the view) are not drawn
+    float4 scene;       // the game's own depth (a copy, t0): x its near plane, y its far plane (0: none), z 1 = reversed
+                        // (1 at the near plane, 0 far away), w 1 = in use
+    float4 sceneMap;    // x, y: its pixels per target pixel; z: something of the game's nearer than this (world units)
+                        // and in front of a line hides it (the first-person gun and arms)
 };
+
+Texture2D<float> sceneDepth : register(t0);
 
 float4 project(float3 p)
 {
@@ -74,8 +80,30 @@ void GSLine(line LineVertex v[2], inout TriangleStream<PixelIn> strip)
     o.pos = float4((pb + e - n) / half * b.w, b.z, b.w); o.side = -w; strip.Append(o);
 }
 
+// the game's depth -> distance along its view (its projection's near and far planes, reversed or not); nothing = far
+float sceneDistance(float g)
+{
+    const float n = scene.x, f = scene.y;
+    if (scene.z > 0.5)
+    {
+        if (g <= 0) return 1e30;
+        return f > n ? n * f / (n + g * (f - n)) : n / g;
+    }
+    if (g >= 1) return 1e30;
+    return f > n ? n * f / (f - g * (f - n)) : n / (1 - g);
+}
+
 float4 PSLine(PixelIn i) : SV_Target
 {
+    if (scene.w > 0.5)
+    {
+        // the game drew something close in front of this piece of line (the first-person gun or arms: the game's
+        // picture is under the lines, so they would be drawn over it). The same surface as the line's (the game's
+        // picture of the map) is never "in front": it must be nearer by 8 % and 3 cm
+        const float d = sceneDistance(sceneDepth.Load(int3(int2(i.pos.xy * sceneMap.xy), 0)));
+        const float lineDistance = viewport.w / max(i.pos.z, 1e-12);       // our depth is near / distance
+        if (d < sceneMap.z && d < lineDistance * 0.92 - 0.03) discard;
+    }
     const float alpha = saturate(viewport.z + 0.5 - abs(i.side));
     return float4(colour.rgb, colour.a * alpha);
 }

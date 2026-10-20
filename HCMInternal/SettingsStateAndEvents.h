@@ -623,6 +623,9 @@ public:
 	// the map grid's line width (pixels at 1080 lines) and opacity
 	std::shared_ptr<BinarySetting<float>> h2pGridWidth = std::make_shared<BinarySetting<float>>
 		(1.f, [](float in) { return in >= 0.25f && in <= 4.f; }, nameof(h2pGridWidth));
+	// Halo 3: the map grid over the finished frame (no bloom, over the gun) instead of in the game's view render
+	std::shared_ptr<BinarySetting<bool>> h2pGridNoBloomToggle = std::make_shared<BinarySetting<bool>>
+		(false, [](bool in) { return true; }, nameof(h2pGridNoBloomToggle));
 	std::shared_ptr<BinarySetting<float>> h2pGridOpacity = std::make_shared<BinarySetting<float>>
 		(0.6f, [](float in) { return in >= 0.05f && in <= 1.f; }, nameof(h2pGridOpacity));
 	std::shared_ptr<BinarySetting<int>> pcmTheme = std::make_shared<BinarySetting<int>>
@@ -2284,6 +2287,7 @@ public:
 		h2pJumpSpotsToggle,
 		h2pGridWidth,
 		h2pGridOpacity,
+		h2pGridNoBloomToggle,
 		pcmTheme,
 
 	};

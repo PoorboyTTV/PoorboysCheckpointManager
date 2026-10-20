@@ -172,6 +172,116 @@ float4 ps(VOut i) : SV_Target { return i.c; }
 		}
 	}
 
+	// ---- a stand-in for the game's own depth buffer (the frame path's gun mask) ---------------------------------------
+	// the game's picture of the map (the collision polygons again) and a first-person gun, drawn into a depth buffer the
+	// way the MCC games keep theirs: float depth reversed with the camera's near / far planes (near 1/128, far 10240 as
+	// Reach's render_near/far_clip_distance), the gun with Halo 3's first-person near plane (x2.4, 0x279BEC); 24-bit
+	// depth the usual way round
+	namespace gamedepth
+	{
+		const char* hlsl = R"(
+cbuffer G : register(b0) { float4 camPos; float4 right; float4 up; float4 fwd; float4 p; float4 q; };
+float4 vs(float3 x : POSITION) : SV_Position {
+    float3 d = x - camPos.xyz;
+    float vz = dot(d, fwd.xyz);
+    float n = p.z, f = p.w;
+    float z = q.x > 0.5 ? n * f / (f - n) - n * vz / (f - n) : f * vz / (f - n) - n * f / (f - n);
+    return float4(dot(d, right.xyz) / p.x, dot(d, up.xyz) / p.y, z, vz);
+}
+)";
+		ID3D11VertexShader* vs = nullptr;
+		ID3D11InputLayout* layout = nullptr;
+		ID3D11Buffer* cb = nullptr;
+		ID3D11Buffer* quad = nullptr;
+		ID3D11DepthStencilState* greater = nullptr, * less = nullptr, * always = nullptr;
+		ID3D11RasterizerState* raster = nullptr;
+		constexpr float kNearPlane = 0.0078125f, kFarPlane = 10240.f;
+
+		bool init(ID3D11Device* dev)
+		{
+			ID3DBlob* b = nullptr, * err = nullptr;
+			if (FAILED(D3DCompile(hlsl, std::strlen(hlsl), "gamedepth", nullptr, nullptr, "vs", "vs_5_0", 0, 0, &b, &err)))
+			{
+				if (err) std::printf("%s\n", (const char*)err->GetBufferPointer());
+				return false;
+			}
+			dev->CreateVertexShader(b->GetBufferPointer(), b->GetBufferSize(), nullptr, &vs);
+			const D3D11_INPUT_ELEMENT_DESC el{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 };
+			dev->CreateInputLayout(&el, 1, b->GetBufferPointer(), b->GetBufferSize(), &layout);
+			D3D11_BUFFER_DESC bd{};
+			bd.ByteWidth = 96;
+			bd.Usage = D3D11_USAGE_DYNAMIC;
+			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			dev->CreateBuffer(&bd, nullptr, &cb);
+			bd.ByteWidth = 6 * 12;
+			bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			dev->CreateBuffer(&bd, nullptr, &quad);
+			D3D11_DEPTH_STENCIL_DESC dd{};
+			dd.DepthEnable = TRUE;
+			dd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dd.DepthFunc = D3D11_COMPARISON_GREATER;
+			dev->CreateDepthStencilState(&dd, &greater);
+			dd.DepthFunc = D3D11_COMPARISON_LESS;
+			dev->CreateDepthStencilState(&dd, &less);
+			dd.DepthFunc = D3D11_COMPARISON_ALWAYS;
+			dev->CreateDepthStencilState(&dd, &always);
+			D3D11_RASTERIZER_DESC rd{};
+			rd.FillMode = D3D11_FILL_SOLID;
+			rd.CullMode = D3D11_CULL_NONE;
+			rd.DepthClipEnable = TRUE;
+			dev->CreateRasterizerState(&rd, &raster);
+			return vs && layout && cb && quad && greater && less && always && raster;
+		}
+
+		void setView(ID3D11DeviceContext* ctx, const Camera& cam, float nearPlane, bool reversed)
+		{
+			D3D11_MAPPED_SUBRESOURCE m;
+			if (FAILED(ctx->Map(cb, 0, D3D11_MAP_WRITE_DISCARD, 0, &m))) return;
+			const float k[24] = { cam.pos.x, cam.pos.y, cam.pos.z, 0, cam.right.x, cam.right.y, cam.right.z, 0, cam.up.x, cam.up.y, cam.up.z, 0,
+				cam.fwd.x, cam.fwd.y, cam.fwd.z, 0, cam.tx, cam.ty, nearPlane, kFarPlane, reversed ? 1.f : 0.f, 0, 0, 0 };
+			std::memcpy(m.pData, k, sizeof(k));
+			ctx->Unmap(cb, 0);
+		}
+
+		// the game's frame into dsv (w x h): the map, then the gun over the bottom-right quarter, 0.3 units ahead
+		void render(ID3D11DeviceContext* ctx, ID3D11DepthStencilView* dsv, UINT w, UINT h, bool reversed, const Camera& cam, ID3D11Buffer* verts,
+			ID3D11Buffer* tris, UINT triCount)
+		{
+			ctx->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, reversed ? 0.f : 1.f, 0);
+			ctx->OMSetRenderTargets(0, nullptr, dsv);
+			const D3D11_VIEWPORT vp{ 0, 0, (float)w, (float)h, 0, 1 };
+			ctx->RSSetViewports(1, &vp);
+			ctx->RSSetState(raster);
+			ctx->IASetInputLayout(layout);
+			ctx->VSSetShader(vs, nullptr, 0);
+			ctx->VSSetConstantBuffers(0, 1, &cb);
+			ctx->GSSetShader(nullptr, nullptr, 0);
+			ctx->PSSetShader(nullptr, nullptr, 0);
+			ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			const UINT stride = 12, offset = 0;
+			setView(ctx, cam, kNearPlane, reversed);
+			ctx->OMSetDepthStencilState(reversed ? greater : less, 0);
+			ctx->IASetVertexBuffers(0, 1, &verts, &stride, &offset);
+			ctx->IASetIndexBuffer(tris, DXGI_FORMAT_R32_UINT, 0);
+			ctx->DrawIndexed(triCount, 0, 0);
+			const V3 c0 = cam.pos + cam.fwd * 0.3f;
+			const V3 r = cam.right * (0.3f * cam.tx * 1.02f), u = cam.up * (0.3f * cam.ty * 1.02f);
+			const V3 q[6] = { c0, c0 + r, c0 + r - u, c0, c0 + r - u, c0 - u };
+			D3D11_MAPPED_SUBRESOURCE m;
+			if (SUCCEEDED(ctx->Map(quad, 0, D3D11_MAP_WRITE_DISCARD, 0, &m)))
+			{
+				std::memcpy(m.pData, q, sizeof(q));
+				ctx->Unmap(quad, 0);
+			}
+			setView(ctx, cam, kNearPlane * 2.4f, reversed);
+			ctx->OMSetDepthStencilState(always, 0);
+			ctx->IASetVertexBuffers(0, 1, &quad, &stride, &offset);
+			ctx->Draw(6, 0);
+			ctx->OMSetDepthStencilState(nullptr, 0);
+		}
+	}
+
 	bool writeBmp(const char* path, const uint8_t* rgba, UINT pitch, int w, int h)
 	{
 		FILE* f = std::fopen(path, "wb");
@@ -685,6 +795,168 @@ int main(int argc, char** argv)
 		ctx->OMSetRenderTargets(1, &rtv, nullptr);
 		dsv->Release();
 		dtex->Release();
+	}
+	// the frame path over the game's own depth (Halo 3 without bloom, ODST, Reach): no line over the first-person gun
+	// (the bottom-right quarter, 0.3 units ahead) and the map's lines elsewhere as without it, in each depth layout the
+	// games use or might (float reversed at the frame's size and at another size, 24-bit the usual way round); the
+	// context's targets and shader resource put back
+	{
+		if (!gamedepth::init(dev))
+		{
+			std::printf("FAIL: the stand-in game depth could not be made\n");
+			return 1;
+		}
+		struct Layout
+		{
+			const char* name;
+			DXGI_FORMAT tex, view;
+			UINT w, h;
+			bool reversed;
+		};
+		const Layout layouts[] = {
+			{ "D32_FLOAT_S8X24 at the frame's size (the MCC games)", DXGI_FORMAT_R32G8X24_TYPELESS, DXGI_FORMAT_D32_FLOAT_S8X24_UINT, (UINT)W, (UINT)H, true },
+			{ "D32_FLOAT at 1280 x 720", DXGI_FORMAT_R32_TYPELESS, DXGI_FORMAT_D32_FLOAT, 1280, 720, true },
+			{ "D24_UNORM_S8 the usual way round", DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D24_UNORM_S8_UINT, (UINT)W, (UINT)H, false },
+		};
+		// level views from points on the map with no map edge within half a unit of the camera
+		std::vector<Pose> views;
+		for (size_t i = 0; views.size() < 48 && i < scene->triIndex.size() / 3; i += scene->triIndex.size() / 3 / 40 + 1)
+		{
+			const V3 a = scene->verts[scene->triIndex[i * 3]], b = scene->verts[scene->triIndex[i * 3 + 1]], c = scene->verts[scene->triIndex[i * 3 + 2]];
+			const V3 eye = (a + b + c) * (1.f / 3) + V3{ 0, 0, 0.7f };
+			bool clear = true;
+			for (int k = 0; k < kEdgeKinds && clear; k++)
+				for (size_t e = 0; e + 1 < scene->edgeIndex[k].size() && clear; e += 2)
+				{
+					const V3 p = scene->verts[scene->edgeIndex[k][e]], q = scene->verts[scene->edgeIndex[k][e + 1]], pq = q - p, pe = eye - p;
+					const float t = std::clamp(dot(pe, pq) / (std::max)(dot(pq, pq), 1e-9f), 0.f, 1.f);
+					if (length(pe - pq * t) < 0.5f) clear = false;
+				}
+			if (clear)
+				for (int k = 0; k < 4; k++) views.push_back({ eye, 90.f * (float)k + 20.f, -15.f });
+		}
+		// a shader resource of the "game's" in slot 0, to see it put back
+		ID3D11Texture2D* dummyTex = nullptr;
+		ID3D11ShaderResourceView* dummy = nullptr;
+		{
+			D3D11_TEXTURE2D_DESC d{};
+			d.Width = d.Height = 4, d.MipLevels = d.ArraySize = 1, d.Format = DXGI_FORMAT_R8G8B8A8_UNORM, d.SampleDesc.Count = 1;
+			d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			dev->CreateTexture2D(&d, nullptr, &dummyTex);
+			dev->CreateShaderResourceView(dummyTex, nullptr, &dummy);
+		}
+		// line pixels of one frame: in the gun's quarter, and elsewhere
+		auto count = [&](const Camera& cam, ID3D11Texture2D* game, ID3D11DepthStencilView* bound, int& inGun, int& elsewhere, bool& restored, double& ms) {
+			const float bg[4] = { 0, 0, 0, 1 };
+			ctx->ClearRenderTargetView(rtv, bg);
+			ctx->OMSetRenderTargets(1, &rtv, bound);
+			ctx->PSSetShaderResources(0, 1, &dummy);
+			DrawOptions o = opt;
+			o.grid = true;
+			o.spots = false;
+			o.gridOpacity = 1.f;
+			o.blockers = nullptr;
+			o.sceneDepth = game;
+			o.sceneNear = gamedepth::kNearPlane;
+			o.sceneFar = gamedepth::kFarPlane;
+			const auto t = clock::now();
+			if (!gpu.draw(ctx, rtv, (float)W, (float)H, cam, o)) return false;
+			ctx->Flush();
+			ms += std::chrono::duration<double, std::milli>(clock::now() - t).count();
+			ID3D11RenderTargetView* now = nullptr;
+			ID3D11DepthStencilView* nowDepth = nullptr;
+			ID3D11ShaderResourceView* nowView = nullptr;
+			ctx->OMGetRenderTargets(1, &now, &nowDepth);
+			ctx->PSGetShaderResources(0, 1, &nowView);
+			restored = restored && now == rtv && nowDepth == bound && nowView == dummy;
+			for (IUnknown* x : { (IUnknown*)now, (IUnknown*)nowDepth, (IUnknown*)nowView }) if (x) x->Release();
+			ctx->CopyResource(staging, target);
+			D3D11_MAPPED_SUBRESOURCE m;
+			ctx->Map(staging, 0, D3D11_MAP_READ, 0, &m);
+			if (const char* dump = std::getenv("WORLDLINES_DUMP"))      // a folder: every frame as a picture
+			{
+				static int n = 0;
+				char path[1024];
+				std::snprintf(path, sizeof path, "%s\\gunmask_%03d_%s.bmp", dump, n++ / 2, game ? "with" : "without");
+				writeBmp(path, (const uint8_t*)m.pData, m.RowPitch, W, H);
+			}
+			inGun = elsewhere = 0;
+			for (int y = 0; y < H; y++)
+				for (int x = 0; x < W; x++)
+				{
+					const uint8_t* px = (const uint8_t*)m.pData + (size_t)y * m.RowPitch + (size_t)x * 4;
+					if (px[0] <= 40 && px[1] <= 40 && px[2] <= 40) continue;
+					if (x > W / 2 + 4 && y > H / 2 + 4) inGun++;
+					else if (x < W / 2 - 4 || y < H / 2 - 4) elsewhere++;
+				}
+			ctx->Unmap(staging, 0);
+			return true;
+		};
+		bool ok = !views.empty();
+		for (const Layout& L : layouts)
+		{
+			ID3D11Texture2D* tex = nullptr;
+			ID3D11DepthStencilView* dsv = nullptr;
+			D3D11_TEXTURE2D_DESC d{};
+			d.Width = L.w, d.Height = L.h, d.MipLevels = d.ArraySize = 1, d.Format = L.tex, d.SampleDesc.Count = 1;
+			d.BindFlags = D3D11_BIND_DEPTH_STENCIL | (L.tex != L.view ? D3D11_BIND_SHADER_RESOURCE : 0);
+			D3D11_DEPTH_STENCIL_VIEW_DESC vd{};
+			vd.Format = L.view;
+			vd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			if (FAILED(dev->CreateTexture2D(&d, nullptr, &tex)) || FAILED(dev->CreateDepthStencilView(tex, &vd, &dsv)))
+			{
+				std::printf("FAIL: %s: the stand-in depth could not be made\n", L.name);
+				return 1;
+			}
+			// the game's depth view stays bound while the grid draws when it is the frame's size (the overlay may
+			// find it so); another size cannot be bound with the frame's target
+			ID3D11DepthStencilView* bound = L.w == (UINT)W && L.h == (UINT)H ? dsv : nullptr;
+			int gunWithout = 0, gunWith = 0, restWithout = 0, restWith = 0, gunViews = 0;
+			bool restored = true, used = true;
+			double msWithout = 0, msWith = 0;
+			for (const Pose& pose : views)
+			{
+				const Camera cam = makeCamera(pose.eye, pose.yaw, pose.pitch, vfov, (float)W / H);
+				gamedepth::render(ctx, dsv, L.w, L.h, L.reversed, cam, vb, ib, (UINT)scene->triIndex.size());
+				int g0 = 0, r0 = 0, g1 = 0, r1 = 0;
+				if (!count(cam, nullptr, bound, g0, r0, restored, msWithout) || !count(cam, tex, bound, g1, r1, restored, msWith))
+				{
+					std::printf("FAIL: %s: draw: %s\n", L.name, gpu.lastError());
+					return 1;
+				}
+				used = used && gpu.sceneUsed();
+				if (g0 > 0) gunViews++;
+				gunWithout += g0, gunWith += g1, restWithout += r0, restWith += r1;
+			}
+			const bool pass = used && restored && gunViews >= 3 && gunWith == 0 && restWith >= restWithout * 0.97;
+			std::printf("  over the game's depth, %s: %zu views (%d with lines behind the gun): gun quarter %d -> %d line pixels, elsewhere %d -> %d (%.1f %%); "
+				"%.1f -> %.1f ms a frame (WARP); state put back %s%s%s\n", L.name, views.size(), gunViews, gunWithout, gunWith, restWithout, restWith,
+				restWithout ? 100.0 * restWith / restWithout : 0.0, msWithout / views.size(), msWith / views.size(), restored ? "yes" : "NO",
+				used ? "" : "; the depth was not used: ", used ? "" : gpu.sceneProblem());
+			ok = ok && pass;
+			dsv->Release();
+			tex->Release();
+		}
+		// without a known near plane, or with a depth the grid cannot read, the lines are drawn as before
+		{
+			const Camera cam = makeCamera(views.empty() ? V3{} : views[0].eye, 20.f, -15.f, vfov, (float)W / H);
+			DrawOptions o = opt;
+			o.sceneDepth = target;      // a colour texture: not a depth
+			o.sceneNear = 0.01f;
+			const bool drew = gpu.draw(ctx, rtv, (float)W, (float)H, cam, o);
+			const bool refused = drew && !gpu.sceneUsed();
+			std::printf("  a colour texture given as the game's depth: drawn %s, not used %s (%s)\n", drew ? "yes" : "NO", refused ? "yes" : "NO", gpu.sceneProblem());
+			ok = ok && refused;
+		}
+		ID3D11ShaderResourceView* none = nullptr;
+		ctx->PSSetShaderResources(0, 1, &none);
+		dummy->Release();
+		dummyTex->Release();
+		if (!ok)
+		{
+			std::printf("FAIL: the gun mask over the game's depth\n");
+			return 1;
+		}
 	}
 	std::printf("PASS\n");
 	return 0;

@@ -1,7 +1,8 @@
 #pragma once
 // Poorboys Checkpoint Manager: draws the map grid (every collision edge of the map: the structure BSP cyan, instanced
 // geometry yellow) and the jump-spot marks into the game's frame with Direct3D 11. The collision triangles go into a
-// depth buffer of our own first, so lines behind walls are hidden. The map is uploaded once (per map / world-file
+// depth buffer of our own first, so lines behind walls are hidden; a copy of the game's own depth keeps them off its
+// first-person gun and arms (drawn after the game's frame, the lines would be over them). The map is uploaded once (per map / world-file
 // change); a frame is a handful of draw calls, nothing per line on the CPU. Plain D3D11 + WorldLinesScene, so
 // tools\worldlines_test renders the same frames offline (WARP).
 #include <d3d11.h>
@@ -35,6 +36,12 @@ namespace worldlines
 		Rgba structure{ 0.25f, 0.88f, 0.94f, 1.f };   // the map (structure BSP)
 		Rgba instance{ 0.92f, 0.90f, 0.16f, 1.f };    // instanced geometry
 		const std::vector<Capsule>* blockers = nullptr;
+		// the game's own depth buffer (its first-person gun and arms are in it): a piece of line with something of the
+		// game's within sceneRange in front of it is not drawn. Copied each draw; any size (the frame's picture
+		// stretched over it), one sample, a depth format (float = reversed, as the MCC games keep it). Null = not used
+		ID3D11Texture2D* sceneDepth = nullptr;
+		float sceneNear = 0.f, sceneFar = 0.f;        // the game camera's clip planes (its depth's projection)
+		float sceneRange = 2.f;                       // world units
 	};
 
 	class Gpu
@@ -51,6 +58,9 @@ namespace worldlines
 		// a buffer could not be made)
 		bool draw(ID3D11DeviceContext* ctx, ID3D11RenderTargetView* rtv, float width, float height, const Camera& cam, const DrawOptions& opt);
 		const char* lastError() const { return mError; }
+		// whether the last draw kept the lines off the game's depth (opt.sceneDepth), and why not
+		bool sceneUsed() const { return mSceneUsed; }
+		const char* sceneProblem() const { return mSceneProblem; }
 
 	private:
 		ID3D11Device* mDevice = nullptr;
@@ -80,9 +90,16 @@ namespace worldlines
 		static constexpr UINT kBlockerVertexCap = 64 * 1024;
 		UINT mTriCount = 0, mEdgeCount[kEdgeKinds] = {}, mGreen = 0, mYellow = 0, mCyan = 0;
 		const char* mError = "";
+		// the copy of the game's depth, made at its size and format group
+		ID3D11Texture2D* mSceneCopy = nullptr;
+		ID3D11ShaderResourceView* mSceneView = nullptr;
+		D3D11_TEXTURE2D_DESC mSceneDesc{};
+		bool mSceneReversed = false, mSceneUsed = false;
+		const char* mSceneProblem = "";
 
 		bool upload();
 		void releaseScene();
 		bool depthFor(ID3D11RenderTargetView* rtv, UINT width, UINT height);
+		bool sceneFor(ID3D11DeviceContext* ctx, ID3D11Texture2D* game);
 	};
 }

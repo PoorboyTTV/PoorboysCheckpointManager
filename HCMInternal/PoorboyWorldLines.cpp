@@ -92,7 +92,125 @@ namespace
 		return name;
 	}
 
+	// ---- the game's own depth buffer: the frame path keeps its lines off the first-person gun and arms ----------------
+	// Each game's rasterizer keeps its render targets and depth buffers in a table of surfaces. set_depth_stencil_surface
+	// (Halo 3 0x27632C, ODST 0x2A35E0, Reach 0x2743A4) picks a surface's buffer: the surface's own index (when a flag
+	// says it has one), twice that when its buffers come in pairs (Reach), and for a surface with a set per split-screen
+	// view: the view being rendered + 4 x that. A buffer's first field is its ID3D11DepthStencilView. The main depth is
+	// the surface the first-person view is drawn into: Halo 3 3 (0x2835D4, and the view render 0x285378 ends on it), ODST
+	// 3 (0x2AC2E4), Reach 9 (0x26EA78). Halo 3 draws its transparents with 7 in place of 3 and 6 (flag reset at
+	// 0x2A91F8). The camera record's clip planes: +0x64 near, +0x68 far (Halo 3 render_camera_build_projection 0x2A6980
+	// is given the record itself, at 0x24CC43; ODST 0x2CB1C4; Reach's depth constants 0x261920).
+	struct DepthGame
+	{
+		GameState::Value game;
+		uint32_t stamp;
+		uintptr_t table;                    // the surface table
+		uint32_t stride, flagsAt;           // a surface's size, where its flags are (u32)
+		uint32_t ownFlag, ownAt;            // the surface has its own buffer index (int at ownAt); 0 = never
+		uint32_t pairFlag;                  // its buffers come in pairs; 0 = never
+		uint32_t viewFlag;                  // one set per split-screen view
+		uintptr_t viewIndex;                // int: the view being rendered
+		uint32_t buffersAt, bufferStride;   // its buffers (pointer), each this big
+		int surface;                        // the main depth
+		uintptr_t swapFlag;                 // Halo 3: int, while set surfaces 3 and 6 are 7; 0 = none
+	};
+	constexpr DepthGame kDepthGames[] = {
+		{ GameState::Value::Halo3, 0x68A0EDFC, 0xA65A80, 0x58, 0, 0, 0, 0, 0x20, 0x46BB868, 0x50, 0xA8, 3, 0x46BB8DC },
+		{ GameState::Value::Halo3ODST, 0x68A0F232, 0xAC80A0, 0x60, 0, 0x400, 0x58, 0, 0x20, 0x46E5B90, 0x50, 0xA8, 3, 0 },
+		{ GameState::Value::HaloReach, 0x68A0EFE1, 0xC8E4B0, 0x70, 0x10, 0x100, 0x68, 8, 0x20, 0x4E38A08, 0x60, 0x88, 9, 0 },
+	};
+	constexpr uintptr_t kCameraClip = 0x64;     // near, far (floats)
+
+	// the main depth buffer's view (an ID3D11DepthStencilView of the game's), 0 = not found
+	uintptr_t depthViewOf(const DepthGame& g, uintptr_t base)
+	{
+		int s = g.surface, swapped = 0;
+		if (g.swapFlag && safeCopy(&swapped, (const void*)(base + g.swapFlag), 4) && swapped && (s == 3 || s == 6)) s = 7;
+		const uintptr_t entry = base + g.table + (uintptr_t)s * g.stride;
+		uint32_t flags = 0;
+		uintptr_t buffers = 0, view = 0;
+		if (!safeCopy(&flags, (const void*)(entry + g.flagsAt), 4) || !safeCopy(&buffers, (const void*)(entry + g.buffersAt), 8) || !buffers) return 0;
+		int index = 0, viewNow = 0;
+		if (g.ownFlag && (flags & g.ownFlag) && !safeCopy(&index, (const void*)(entry + g.ownAt), 4)) return 0;
+		if (g.pairFlag && (flags & g.pairFlag)) index *= 2;
+		if (flags & g.viewFlag)
+		{
+			if (!safeCopy(&viewNow, (const void*)(base + g.viewIndex), 4)) return 0;
+			index = viewNow + index * 4;
+		}
+		if (index < 0 || index >= 64 || !safeCopy(&view, (const void*)(buffers + (uintptr_t)index * g.bufferStride), 8)) return 0;
+		return view;
+	}
+
+	// the texture behind a depth view of the game's (one reference for the caller), when it is a depth view of this
+	// device; null if not. The pointer comes from the game's memory: its object and vtable must be mapped first
+	ID3D11Texture2D* depthTexture(uintptr_t view, ID3D11Device* device)
+	{
+		uintptr_t vtable = 0;
+		if (!view || !safeCopy(&vtable, (const void*)view, 8) || !mapped((const void*)vtable, 16 * 8)) return nullptr;
+		ID3D11Texture2D* tex = nullptr;
+		__try
+		{
+			ID3D11DepthStencilView* dsv = nullptr;
+			if (SUCCEEDED(((IUnknown*)view)->QueryInterface(__uuidof(ID3D11DepthStencilView), (void**)&dsv)) && dsv)
+			{
+				ID3D11Device* owner = nullptr;
+				dsv->GetDevice(&owner);
+				ID3D11Resource* res = nullptr;
+				if (owner == device) dsv->GetResource(&res);
+				if (owner) owner->Release();
+				dsv->Release();
+				if (res)
+				{
+					if (FAILED(res->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex))) tex = nullptr;
+					res->Release();
+				}
+			}
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			tex = nullptr;
+		}
+		return tex;
+	}
+
 	ImU32 rgb(int r, int g, int b) { return IM_COL32(r, g, b, 255); }
+
+	// why a frame drew no grid over it, for the status line
+	enum FrameSkip { kDrew = 0, kNoScene, kNoCamera, kBadTarget, kDrawFailed };
+	const char* frameSkipText(int why)
+	{
+		switch (why)
+		{
+		case kNoScene: return "no map file loaded";
+		case kNoCamera: return "the camera is not readable";
+		case kBadTarget: return "the frame's target has no usable size";
+		case kDrawFailed: return "the draw failed";
+		default: return "";
+		}
+	}
+
+	// the frame's own size, from the texture behind its render target. HCM's screen size is the swap chain's at
+	// start-up or the size given to the last ResizeBuffers, which is 0 x 0 when the game asks for "the window's size";
+	// a depth buffer of any other size than the target is refused by OMSetRenderTargets and nothing is drawn.
+	bool targetSize(ID3D11RenderTargetView* rtv, UINT& w, UINT& h)
+	{
+		w = h = 0;
+		ID3D11Resource* res = nullptr;
+		rtv->GetResource(&res);
+		if (!res) return false;
+		ID3D11Texture2D* tex = nullptr;
+		if (SUCCEEDED(res->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex)) && tex)
+		{
+			D3D11_TEXTURE2D_DESC d;
+			tex->GetDesc(&d);
+			w = d.Width, h = d.Height;
+			tex->Release();
+		}
+		res->Release();
+		return w > 0 && h > 0;
+	}
 
 	// ---- Halo 3: the game's own view render (Jagged's H3 Collision Viewer, Overlay\Engine.h + dllmain.cpp) ----------
 	// c_player_view::x_global_player_views[4] sit back to back (0x2820 each) in halo3.dll's writable data and share one
@@ -271,6 +389,8 @@ PoorboyWorldLines::~PoorboyWorldLines()
 		std::unique_lock<std::mutex> lock(mDestructionGuard); // a render in progress finishes first
 		mGpu.release();
 		mEngine.release();
+		if (mGameDepth) mGameDepth->Release();
+		mGameDepth = nullptr;
 	}
 }
 
@@ -342,6 +462,8 @@ void PoorboyWorldLines::unhookView()
 void PoorboyWorldLines::onViewRendered(void* view)
 {
 	if (!mEngineReady || gViewFaults.load() > 0) return;
+	// "Grid without bloom": the game's drawer stands aside, the frame path below draws (after the game's bloom)
+	if (mSettings->h2pGridNoBloomToggle->GetValue()) return;
 	const int game = mGame.load();
 	if (game < 0 || game != mEngineGame.load()) return;
 	const bool grid = mSettings->h2pWorldLinesToggle->GetValue(), spots = mSettings->h2pJumpSpotsToggle->GetValue();
@@ -408,14 +530,28 @@ void PoorboyWorldLines::onRender(ID3D11Device* device, ID3D11DeviceContext* cont
 	}
 	mGame = game;
 	mWantSpots = spots;
-	if (game < 0 || mGpuFailed || !device || !context || !target || screenSize.x < 64 || screenSize.y < 64) return;
+	if (game < 0 || mGpuFailed || !device || !context || !target) return;
+	UINT frameW = 0, frameH = 0;
+	if (!targetSize(target, frameW, frameH) || frameW < 64 || frameH < 64)
+	{
+		mFrameSkip = kBadTarget;
+		return;
+	}
+	// the labels go through ImGui, in its own display size (HCM's screen size can be stale, see targetSize)
+	const ImVec2 display = ImGui::GetIO().DisplaySize;
+	const float labelW = display.x >= 64 ? display.x : screenSize.x >= 64 ? screenSize.x : (float)frameW;
+	const float labelH = display.y >= 64 ? display.y : screenSize.y >= 64 ? screenSize.y : (float)frameH;
 	Published p;
 	{
 		std::scoped_lock l(mPublishedMutex);
 		p = mPublished;
 	}
 	Camera cam;
-	if (!p.scene || !readCamera(p.camera, cam)) return;      // the newest camera: the lines stay put while you turn
+	if (!p.scene || !readCamera(p.camera, cam))      // the newest camera: the lines stay put while you turn
+	{
+		mFrameSkip = p.scene ? kNoCamera : kNoScene;
+		return;
+	}
 
 	// Halo 3 with the view render hooked: the game's drawer drew the lines this frame; only the labels are left
 	const bool engineLive = mEngineReady && GetTickCount64() - mEngineDrawnMs.load() < 300;
@@ -429,15 +565,35 @@ void PoorboyWorldLines::onRender(ID3D11Device* device, ID3D11DeviceContext* cont
 	DrawOptions opt;
 	opt.grid = grid;
 	opt.spots = spots;
-	opt.lineScale = screenSize.y / 1080.f;
+	opt.lineScale = (float)frameH / 1080.f;
 	opt.gridWidth = mSettings->h2pGridWidth->GetValue();
 	opt.gridOpacity = mSettings->h2pGridOpacity->GetValue();
 	if (!engineLive)
 	{
 		players(cam);
 		opt.blockers = &mBlockers;
-		if (!mGpu.draw(context, target, screenSize.x, screenSize.y, cam, opt)) return;
+		const char* depthMissing = gameDepth(game, device, p.camera, opt);
+		if (!mGpu.draw(context, target, (float)frameW, (float)frameH, cam, opt))
+		{
+			mFrameSkip = kDrawFailed;
+			return;
+		}
 		mFrameDraws++;
+		mFrameSkip = kDrew;
+		// how the gun and arms are kept clear (logged when it changes)
+		std::string note;
+		if (mGpu.sceneUsed())
+		{
+			D3D11_TEXTURE2D_DESC d;
+			opt.sceneDepth->GetDesc(&d);
+			note = std::format("kept off your first-person gun and arms by the game's own depth ({} x {}, format {}; clip planes {:g} .. {:g})", d.Width,
+				d.Height, (int)d.Format, opt.sceneNear, opt.sceneFar);
+		}
+		else
+			note = std::string("drawn over your first-person gun: the game's own depth ") +
+			(opt.sceneDepth ? std::string("cannot be used: ") + mGpu.sceneProblem() : std::string(depthMissing));
+		if (note != mGameDepthNote) PLOG_INFO << "Map grid on " << kGames[game].title << ": " << note;
+		mGameDepthNote = note;
 	}
 
 	if (spots && !mSettings->hideHUDToggle->GetValue())      // the labels are text: Hide HUD hides them
@@ -446,11 +602,36 @@ void PoorboyWorldLines::onRender(ID3D11Device* device, ID3D11DeviceContext* cont
 		for (const Label& l : p.labels)
 		{
 			float x, y;
-			if (toScreen(cam, l.at, screenSize.x, screenSize.y, x, y) && x >= 0 && x < screenSize.x && y >= 0 && y < screenSize.y)
-				dl->AddText(ImGui::GetFont(), 18.f * (std::max)(1.f, screenSize.y / 1080.f), ImVec2(x + 6, y - 9),
+			if (toScreen(cam, l.at, labelW, labelH, x, y) && x >= 0 && x < labelW && y >= 0 && y < labelH)
+				dl->AddText(ImGui::GetFont(), 18.f * (std::max)(1.f, labelH / 1080.f), ImVec2(x + 6, y - 9),
 					rgb(kTakeOffRgb[0], kTakeOffRgb[1], kTakeOffRgb[2]), l.text.c_str());
 		}
 	}
+}
+
+// The game's main depth buffer (kDepthGames) and its camera's clip planes into opt. The buffer is looked up in the game's
+// surface table every half second (a resize or a reloaded module makes new ones) and kept with one reference between;
+// the clip planes are read every frame. Anything not found: no depth given, the lines are drawn as before.
+const char* PoorboyWorldLines::gameDepth(int game, ID3D11Device* device, uintptr_t camera, DrawOptions& opt)
+{
+	const uint64_t now = GetTickCount64();
+	if (now - mGameDepthMs >= 500)
+	{
+		mGameDepthMs = now;
+		if (mGameDepth) mGameDepth->Release();
+		mGameDepth = nullptr;
+		for (const DepthGame& d : kDepthGames)
+			if (d.game == kGames[game].game && d.stamp == kGames[game].stamp)
+				if (const uintptr_t base = gameBase(kGames[game])) mGameDepth = depthTexture(depthViewOf(d, base), device);
+	}
+	if (!mGameDepth) return "was not found in its surface table";
+	float clip[2] = {};
+	if (!camera || !safeCopy(clip, (const void*)(camera + kCameraClip), sizeof(clip)) || !(clip[0] > 1e-5f && clip[0] < 1.f))
+		return "has no readable near plane in the camera";
+	opt.sceneDepth = mGameDepth;
+	opt.sceneNear = clip[0];
+	opt.sceneFar = std::isfinite(clip[1]) && clip[1] > clip[0] ? clip[1] : 0.f;
+	return "";
 }
 
 // Every biped of the game (players, AI) as a capsule standing on its feet, carried forward by its velocity to now: a
@@ -591,8 +772,9 @@ void PoorboyWorldLines::work()
 				nextStatus = clock::now() + std::chrono::seconds(10);
 				void* inSlot = nullptr;
 				const bool hooked = mEngineReady && mHookSlot && safeCopy(&inSlot, mHookSlot, sizeof(inSlot)) && inSlot == (void*)&hookedViewRender;
-				const int engine = mEngineDraws.exchange(0), frame = mFrameDraws.exchange(0);
+				const int engine = mEngineDraws.exchange(0), frame = mFrameDraws.exchange(0), skip = mFrameSkip.load();
 				const std::string status = std::string(engine > 0 ? "drawn by the game's renderer" : frame > 0 ? "drawn over the frame" : "not drawn") +
+					(engine == 0 && frame == 0 && skip != kDrew ? std::string(" (") + frameSkipText(skip) + ")" : std::string()) +
 					"; hook " + (hooked ? "in place" : "not in place") + ", faults " + std::to_string(gViewFaults.load());
 				if (status != lastStatus)
 					PLOG_INFO << "Map grid on " << (scene ? scene->map : std::string("(no map yet)")) << ": " << status << " (" << engine << " views, " << frame
