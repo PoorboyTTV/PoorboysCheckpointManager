@@ -26,7 +26,7 @@ namespace HCMExternal
 
 
         // Poorboys Checkpoint Manager's own version (the HCM version below stays what the pointer data checks)
-        public const string PcmVersion = "1.4.0";
+        public const string PcmVersion = "1.4.1";
         public string CurrentHCMVersion = "unset";
 
         public App()

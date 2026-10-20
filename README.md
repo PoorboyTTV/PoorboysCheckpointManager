@@ -6,7 +6,7 @@
 
 One zip, nothing to install. Windows, MCC on Steam (made for MCC 1.3528). Older versions and release notes: [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases).
 
-**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.3.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.3.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
+**Playing online with friends who haven't updated yet?** Everyone in the game needs the same version. The previous one stays here: [1.4.0](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases/download/v1.4.0/PoorboysCheckpointManager.zip) (every older version is on the [Releases](https://github.com/PoorboyTTV/PoorboysCheckpointManager/releases) page, with its own download).
 
 💬 **Need help, found a bug, or want something added?** Message Poorboy on Discord: **@poorboy**
 
@@ -45,7 +45,7 @@ Everything below is in **Poorboy's Mods**, the first section of the overlay.
 ### Practice tools
 - **Save spot / Back to spot**: back exactly where you saved: place, speed, view, crouch and armed state. Safe online (only your player moves).
 - **Fly**: your player flies where you look, through walls (others see you). Speed slider next to it. Tick **Hold the Fly key to fly** to fly only while you hold its hotkey. Armed before a flight = armed where it ends.
-- **Barriers** (F7): soft ceilings off, out-of-bounds kill off, kill volumes off (in Reach also its out-of-the-map timers).
+- **Barriers** (F7): soft ceilings off, out-of-bounds kill off, kill volumes off (in Reach the out-of-bounds step also takes its out-of-the-map timers and its kill walls and ceilings; the pits under the map stay until the last step).
 - **No falling deaths** (F11): falls and hard landings never hurt (in Reach also its landing and impact damage).
 - **Bottomless Clip**: your magazine never empties, plasma batteries don't drain, grenades never run out.
 - **Disable AI**: enemies and allies stand still and don't shoot, for campaign practice and videos.
